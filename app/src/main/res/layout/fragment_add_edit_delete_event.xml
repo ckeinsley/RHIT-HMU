@@ -1,0 +1,117 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="edu.rosehulman.keinslc.rhithmu.AddEditDeleteEventFragment"
+    android:orientation="vertical">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Calendar"
+            android:textSize="24sp"/>
+
+        <Button
+            android:id="@+id/event_calendar_edit_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Input Date"
+            android:textSize="20sp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Time"
+            android:textSize="24sp"/>
+
+        <Button
+            android:id="@+id/event_time_edit_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Input time"
+            android:textSize="20sp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name"
+            android:textSize="24sp"/>
+
+        <EditText
+            android:id="@+id/event_name_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Input Event Name"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Location"
+            android:textSize="24sp"/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Input Event Location"/>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Invitees"
+        android:textSize="24sp"/>
+    <EditText
+        android:id="@+id/event_invitees_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Input event invitees"
+        android:textSize="18sp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Description"
+        android:textSize="24sp"/>
+    <EditText
+        android:id="@+id/event_description_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add a description"
+        android:textSize="18sp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recurring"
+            android:textSize="24sp"/>
+    </LinearLayout>
+</LinearLayout>
