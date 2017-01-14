@@ -7,7 +7,7 @@
         android:id="@+id/action_importClasses"
         android:orderInCategory="50"
         android:title="@string/action_import_classes"
-        android:icon="@drawable/ic_input_black_48dp"
+        android:icon="@drawable/ic_input_white_48dp"
         app:showAsAction="ifRoom" />
 
     <item
