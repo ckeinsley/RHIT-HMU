@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
 import com.alamkanak.weekview.MonthLoader;
 import com.alamkanak.weekview.WeekView;
@@ -21,6 +22,11 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private WeekView mWeekView;
+    private Button mMatchScheduleButton;
+    private Button mTodayButton;
+    private Button mOneDayButton;
+    private Button mThreeDayButton;
+    private Button mWeekButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,12 +35,17 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Get a reference for the week view in the layout.
+        // Grab references
         mWeekView = (WeekView) findViewById(R.id.weekView);
+        mMatchScheduleButton = (Button) findViewById(R.id.matchSyncSchedule);
+        mTodayButton = (Button) findViewById(R.id.todayButton);
+        mOneDayButton = (Button) findViewById(R.id.oneDayButton);
+        mThreeDayButton = (Button) findViewById(R.id.threeDayButton);
+        mWeekButton = (Button) findViewById(R.id.sevenDayButton);
 
+//        setDayButtonListeners();
 
-
-// Set an action when any event is clicked.
+    // Set an action when any event is clicked.
         mWeekView.setOnEventClickListener(new WeekView.EventClickListener() {
             @Override
             public void onEventClick(WeekViewEvent event, RectF eventRect) {
@@ -42,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-// The week view has infinite scrolling horizontally. We have to provide the events of a
-// month every time the month changes on the week view.
+    // The week view has infinite scrolling horizontally. We have to provide the events of a
+    // month every time the month changes on the week view.
         mWeekView.setMonthChangeListener(new MonthLoader.MonthChangeListener() {
             @Override
             public List<? extends WeekViewEvent> onMonthChange(int newYear, int newMonth) {
@@ -52,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-// Set long press listener for events.
+    // Set long press listener for events.
         mWeekView.setEventLongPressListener(new WeekView.EventLongPressListener() {
             @Override
             public void onEventLongPress(WeekViewEvent event, RectF eventRect) {
