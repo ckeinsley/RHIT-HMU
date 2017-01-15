@@ -39,7 +39,6 @@ public class AddEditDeleteEventFragment extends Fragment {
     private String mParam2;
 
 
-
     private OnFragmentInteractionListener mListener;
 
     public AddEditDeleteEventFragment() {
