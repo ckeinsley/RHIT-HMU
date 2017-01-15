@@ -97,6 +97,7 @@
                     android:textSize="24sp" />
 
                 <EditText
+                    android:id="@+id/event_location_editText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
@@ -119,7 +120,7 @@
                     android:textSize="24sp" />
 
                 <EditText
-                    android:id="@+id/event_invitees_edit"
+                    android:id="@+id/event_invitees_editText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"
@@ -143,7 +144,7 @@
                     android:textSize="24sp" />
 
                 <EditText
-                    android:id="@+id/event_description_edit"
+                    android:id="@+id/event_description_editText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="2dp"

@@ -10,6 +10,7 @@ import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 
 import edu.rosehulman.keinslc.rhithmu.Event;
@@ -23,11 +24,12 @@ import edu.rosehulman.keinslc.rhithmu.R;
 public class AddEditDeleteEventDialogFragment extends DialogFragment {
     private MainActivity mActivity;
     private Event mEvent;
+    public static final String ARG_EVENT = "myEventArgument";
 
     public static AddEditDeleteEventDialogFragment newInstance(Event event) {
         AddEditDeleteEventDialogFragment frag = new AddEditDeleteEventDialogFragment();
         Bundle args = new Bundle();
-        // TODO: Set up bundle
+        args.putParcelable(ARG_EVENT, event);
 
         frag.setArguments(args);
         return frag;
@@ -47,8 +49,22 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
         View view = LayoutInflater.from(getActivity()).inflate(
                 R.layout.dialog_fragment_add_edit_delete_event, null);
         builder.setView(view);
-        // TODO: Capture views and grab mEvent from bundle
-        final EditText messageEditText = (EditText) view.findViewById(R.id.event_name_editText);
+
+        // Buttons
+        Button dateButton = (Button) view.findViewById(R.id.event_calendar_edit_button);
+        Button startTimeButton = (Button) view.findViewById(R.id.start_time_edit_button);
+        Button endTimeButton = (Button) view.findViewById(R.id.end_time_edit_button);
+        // EditTexts
+        EditText eventNameEditText = (EditText) view.findViewById(R.id.event_name_editText);
+        EditText eventLocationEditText = (EditText) view.findViewById(R.id.event_location_editText);
+        EditText eventInviteesEditText = (EditText) view.findViewById(R.id.event_invitees_editText);
+        EditText eventDescriptionEditText = (EditText) view.findViewById(R.id.event_description_editText);
+
+//        dateButton.setText(mEvent.getDateAsString());
+//        startTimeButton.setText(mEvent.getStartTime().toString());
+//        endTimeButton.setText(mEvent.getEndTime().toString());
+
+        mEvent = getArguments().getParcelable(ARG_EVENT);
 
 
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
