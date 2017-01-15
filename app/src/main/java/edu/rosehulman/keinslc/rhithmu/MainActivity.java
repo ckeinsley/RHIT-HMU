@@ -3,7 +3,7 @@ package edu.rosehulman.keinslc.rhithmu;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -17,7 +17,10 @@ import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+
+import edu.rosehulman.keinslc.rhithmu.fragments.AddEditDeleteEventDialogFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -80,8 +83,10 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null);
+                DialogFragment df = new AddEditDeleteEventDialogFragment();
+                df.show(getSupportFragmentManager(), "add/edit/delete fragment");
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null);
             }
         });
     }
@@ -131,19 +136,25 @@ public class MainActivity extends AppCompatActivity {
         mOneDayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Calendar day = mWeekView.getFirstVisibleDay();
                 mWeekView.setNumberOfVisibleDays(1);
+                mWeekView.goToDate(day);
             }
         });
         mThreeDayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Calendar day = mWeekView.getFirstVisibleDay();
                 mWeekView.setNumberOfVisibleDays(3);
+                mWeekView.goToDate(day);
             }
         });
         mWeekButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Calendar day = mWeekView.getFirstVisibleDay();
                 mWeekView.setNumberOfVisibleDays(7);
+                mWeekView.goToDate(day);
             }
         });
     }
