@@ -59,7 +59,8 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
         mEvent = new Event();
         if(getArguments() != null) {
             mEvent = getArguments().getParcelable(ARG_EVENT);
-        }
+            Log.d("AddEditDeleteDialogFrag", "loaded Event");
+    }
 
         // Buttons
         Button dateButton = (Button) view.findViewById(R.id.event_calendar_edit_button);
@@ -94,17 +95,17 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
         });
 
 
-        String date = mEvent.getStartTime().toString();
+        Calendar date = mEvent.getStartTime();
         if( date != null) {
-            dateButton.setText(date);
+            dateButton.setText(date.toString());
         }
-        String start = mEvent.getStartTime().toString();
+        Calendar start = mEvent.getStartTime();
         if(start != null) {
-            startTimeButton.setText(mEvent.getStartTime().toString());
+            startTimeButton.setText(start.toString());
         }
-        String end = mEvent.getEndTime().toString();
+        Calendar end = mEvent.getEndTime();
         if(end != null) {
-            endTimeButton.setText(mEvent.getEndTime().toString());
+            endTimeButton.setText(end.toString());
         }
 
 
