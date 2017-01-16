@@ -23,7 +23,8 @@ public class EventUtils {
 
     public static String getDateStringFromCalendar(Calendar calendar) {
         String output = "";
-        output += (daysOfWeek[calendar.get(Calendar.DAY_OF_WEEK)]);
+        // TODO: Test Sunday
+        output += (daysOfWeek[calendar.get(Calendar.DAY_OF_WEEK) - 1]);
         output += (", ");
         output += (monthsOfYear[calendar.get(Calendar.MONTH)]);
         output += (' ');
