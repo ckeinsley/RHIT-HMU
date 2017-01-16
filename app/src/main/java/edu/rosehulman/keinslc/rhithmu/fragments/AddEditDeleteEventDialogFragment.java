@@ -92,6 +92,7 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
         updateView();
 
         /* Button Listeners*/
+        // TODO: Set up so that the second dialog fragment can communicate to the first
         dateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -115,10 +116,10 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
         });
         /* Alert Dialog Buttons */
         // Do nothing
-        builder.setNegativeButton("Cancel", null);
+        builder.setNegativeButton(android.R.string.cancel, null);
 
         // Delete Event
-        builder.setNeutralButton("Delete", new DialogInterface.OnClickListener() {
+        builder.setNeutralButton(R.string.delete, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // TODO: Delete the event from MainActivity
@@ -136,10 +137,13 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
     }
 
     private void updateView() {
-        dateButton.setText("Start Day " + EventUtils.getDateStringFromCalendar(mStartTime));
-        startTimeButton.setText("Start Time " + EventUtils.getTimeStringFromCalendar(mStartTime));
-        endTimeButton.setText("End Time " + EventUtils.getTimeStringFromCalendar(mEndTime));
+        dateButton.setText(getString(R.string.startDateButtonFirstHalf) + EventUtils.getDateStringFromCalendar(mStartTime));
+        startTimeButton.setText(getString(R.string.startTimeFirstHalf) + EventUtils.getTimeStringFromCalendar(mStartTime));
+        endTimeButton.setText(getString(R.string.endTimeFirstHalf) + EventUtils.getTimeStringFromCalendar(mEndTime));
+        eventDescriptionEditText.setText(mEvent.getDescription());
+        eventInviteesEditText.setText(mEvent.getInvitees());
+        eventLocationEditText.setText(mEvent.getLocation());
+        eventNameEditText.setText(mEvent.getName());
     }
-
 
 }

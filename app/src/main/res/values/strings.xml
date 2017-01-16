@@ -2,4 +2,17 @@
     <string name="app_name">RHIT HMU</string>
     <string name="action_settings">Settings</string>
     <string name="action_import_classes">Import Classes</string>
+    <string name="startDateButtonFirstHalf">"Start Day "</string>
+    <string name="startTimeFirstHalf">"Start Time "</string>
+    <string name="endTimeFirstHalf">"End Time "</string>
+    <string name="nameTextViewLabel">Name</string>
+    <string name="nameEditTextHint">Input Event Name</string>
+    <string name="locationTextViewLabel">Location</string>
+    <string name="locationEditTextHint">Input Event Location</string>
+    <string name="inviteesTextViewLabel">Invitees</string>
+    <string name="inviteesEditTextHint">Input event invitees</string>
+    <string name="descriptionTextViewLabel">Description</string>
+    <string name="descriptionEditTextHint">Add a description</string>
+    <string name="recurrenceTextViewLabel">Recurring</string>
+    <string name="delete">Delete</string>
 </resources>

@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Fill mEvents
         mEvents = new ArrayList<>();
-        EventUtils.generateDefaultButtons(mEvents);
+        EventUtils.createDefaultEvents(mEvents);
         if (savedInstanceState != null) {
             // TODO Persist data
         }

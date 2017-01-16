@@ -14,7 +14,7 @@ public class EventUtils {
     private static final String[] daysOfWeek = {"Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"};
     private static final String[] monthsOfYear = {"Jan", "Feb", "Mar", "Apr", "Mat", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"};
 
-    public static void generateDefaultButtons(List<Event> events) {
+    public static void createDefaultEvents(List<Event> events) {
         Calendar startTime = Calendar.getInstance();
         Calendar endTime = Calendar.getInstance();
         endTime.setTimeInMillis(endTime.getTimeInMillis() + 3600000);

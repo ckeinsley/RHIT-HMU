@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.DatePicker;
-import android.widget.EditText;
 
 import edu.rosehulman.keinslc.rhithmu.R;
 
@@ -28,14 +27,11 @@ public class DatePickerDialogFragment extends DialogFragment {
                 R.layout.dialog_fragment_date_picker, null);
         builder.setView(view);
 
-        // TODO: Capture views and grab mEvent from bundle
         final DatePicker mDatePicker = (DatePicker) view.findViewById(R.id.date_picker);
-
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Log.d("FRAG", "OK Clicked");
-
+                Log.d("DATE PICKER", "okay clicked + " + mDatePicker.getMonth());
             }
         });
         builder.setNegativeButton(android.R.string.cancel, null);
