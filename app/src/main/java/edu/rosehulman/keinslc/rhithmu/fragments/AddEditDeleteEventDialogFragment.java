@@ -60,11 +60,19 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
         EditText eventInviteesEditText = (EditText) view.findViewById(R.id.event_invitees_editText);
         EditText eventDescriptionEditText = (EditText) view.findViewById(R.id.event_description_editText);
 
+        dateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment df = new DatePickerDialogFragment();
+                df.show(getFragmentManager(), "Date Pickin Fragin");
+            }
+        });
+
 //        dateButton.setText(mEvent.getDateAsString());
 //        startTimeButton.setText(mEvent.getStartTime().toString());
 //        endTimeButton.setText(mEvent.getEndTime().toString());
 
-        mEvent = getArguments().getParcelable(ARG_EVENT);
+//        mEvent = getArguments().getParcelable(ARG_EVENT);
 
 
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
