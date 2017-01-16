@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import edu.rosehulman.keinslc.rhithmu.Utils.EventUtils;
 import edu.rosehulman.keinslc.rhithmu.fragments.AddEditDeleteEventDialogFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -49,6 +50,13 @@ public class MainActivity extends AppCompatActivity {
         mWeekButton = (Button) findViewById(R.id.sevenDayButton);
         setButtonListeners();
 
+        //Fill mEvents
+        mEvents = new ArrayList<>();
+        EventUtils.generateDefaultButtons(mEvents);
+        if (savedInstanceState != null) {
+            // TODO Persist data
+        }
+
         // Set an action when any event is clicked.
         mWeekView.setOnEventClickListener(new WeekView.EventClickListener() {
             @Override
@@ -65,9 +73,7 @@ public class MainActivity extends AppCompatActivity {
             public List<? extends WeekViewEvent> onMonthChange(int newYear, int newMonth) {
                 Log.d("MAIN", "Month Changed");
                 // TODO generate the events in the given month/year
-                ArrayList<WeekViewEvent> events = new ArrayList<WeekViewEvent>();
-                events.add(new WeekViewEvent(5, "Test", 2017, 1, 14, 6, 25, 2017, 1, 14, 8, 5));
-                return events;
+                return mEvents;
             }
         });
 
@@ -84,7 +90,8 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DialogFragment df = new AddEditDeleteEventDialogFragment();
+                Event event = new Event();
+                DialogFragment df = AddEditDeleteEventDialogFragment.newInstance(event);
                 df.show(getSupportFragmentManager(), "add/edit/delete fragment");
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null);
@@ -160,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void delete(Event e){
+    private void delete(Event e) {
         mEvents.remove(e);
     }
 }

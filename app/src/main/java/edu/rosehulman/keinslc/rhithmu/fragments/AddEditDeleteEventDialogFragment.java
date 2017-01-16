@@ -14,11 +14,11 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import java.util.Calendar;
-import java.util.Date;
 
 import edu.rosehulman.keinslc.rhithmu.Event;
 import edu.rosehulman.keinslc.rhithmu.MainActivity;
 import edu.rosehulman.keinslc.rhithmu.R;
+import edu.rosehulman.keinslc.rhithmu.Utils.EventUtils;
 
 /**
  * Created by keinslc on 1/15/2017.
@@ -32,11 +32,18 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
     public Calendar mStartTime;
     public Calendar mEndTime;
 
+    private Button dateButton;
+    private Button startTimeButton;
+    private Button endTimeButton;
+    private EditText eventNameEditText;
+    private EditText eventLocationEditText;
+    private EditText eventInviteesEditText;
+    private EditText eventDescriptionEditText;
+
     public static AddEditDeleteEventDialogFragment newInstance(Event event) {
         AddEditDeleteEventDialogFragment frag = new AddEditDeleteEventDialogFragment();
         Bundle args = new Bundle();
         args.putParcelable(ARG_EVENT, event);
-
         frag.setArguments(args);
         return frag;
     }
@@ -56,22 +63,35 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
                 R.layout.dialog_fragment_add_edit_delete_event, null);
         builder.setView(view);
 
-        mEvent = new Event();
-        if(getArguments() != null) {
-            mEvent = getArguments().getParcelable(ARG_EVENT);
-            Log.d("AddEditDeleteDialogFrag", "loaded Event");
-    }
-
         // Buttons
-        Button dateButton = (Button) view.findViewById(R.id.event_calendar_edit_button);
-        Button startTimeButton = (Button) view.findViewById(R.id.start_time_edit_button);
-        Button endTimeButton = (Button) view.findViewById(R.id.end_time_edit_button);
+        dateButton = (Button) view.findViewById(R.id.event_calendar_edit_button);
+        startTimeButton = (Button) view.findViewById(R.id.start_time_edit_button);
+        endTimeButton = (Button) view.findViewById(R.id.end_time_edit_button);
         // EditTexts
-        EditText eventNameEditText = (EditText) view.findViewById(R.id.event_name_editText);
-        EditText eventLocationEditText = (EditText) view.findViewById(R.id.event_location_editText);
-        EditText eventInviteesEditText = (EditText) view.findViewById(R.id.event_invitees_editText);
-        EditText eventDescriptionEditText = (EditText) view.findViewById(R.id.event_description_editText);
+        eventNameEditText = (EditText) view.findViewById(R.id.event_name_editText);
+        eventLocationEditText = (EditText) view.findViewById(R.id.event_location_editText);
+        eventInviteesEditText = (EditText) view.findViewById(R.id.event_invitees_editText);
+        eventDescriptionEditText = (EditText) view.findViewById(R.id.event_description_editText);
 
+        // The arguments cannot be null, new event must be passed in at least
+        if (getArguments() != null) {
+            mEvent = getArguments().getParcelable(ARG_EVENT);
+        } else {
+            // Should never happen
+            mEvent = new Event();
+        }
+
+        if (mEvent.getId() == -1) {
+            mStartTime = Calendar.getInstance();
+            mEndTime = Calendar.getInstance();
+            mEndTime.setTimeInMillis(mEndTime.getTimeInMillis() + 3600000);
+        } else {
+            mStartTime = (Calendar) mEvent.getStartTime().clone();
+            mEndTime = (Calendar) mEvent.getEndTime().clone();
+        }
+        updateView();
+
+        /* Button Listeners*/
         dateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,31 +113,32 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
                 df.show(getFragmentManager(), "Time Pickin Fragin");
             }
         });
+        /* Alert Dialog Buttons */
+        // Do nothing
+        builder.setNegativeButton("Cancel", null);
 
-
-        Calendar date = mEvent.getStartTime();
-        if( date != null) {
-            dateButton.setText(date.toString());
-        }
-        Calendar start = mEvent.getStartTime();
-        if(start != null) {
-            startTimeButton.setText(start.toString());
-        }
-        Calendar end = mEvent.getEndTime();
-        if(end != null) {
-            endTimeButton.setText(end.toString());
-        }
-
-
-
-
+        // Delete Event
+        builder.setNeutralButton("Delete", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // TODO: Delete the event from MainActivity
+            }
+        });
+        // Edit Event
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Log.d("FRAG", "OK Clicked");
+                // TODO: Update the event information with the information provided
             }
         });
         return builder.create();
+    }
+
+    private void updateView() {
+        dateButton.setText("Start Day " + EventUtils.getDateStringFromCalendar(mStartTime));
+        startTimeButton.setText("Start Time " + EventUtils.getTimeStringFromCalendar(mStartTime));
+        endTimeButton.setText("End Time " + EventUtils.getTimeStringFromCalendar(mEndTime));
     }
 
 

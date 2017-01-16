@@ -17,7 +17,7 @@ public class Event extends WeekViewEvent implements Parcelable {
     private String mInvitees;
 
     public Event() {
-        setId(7);
+        setId(-1);
     }
 
     public Event(long id, String name, String location, String description, String invitees, Calendar start, Calendar end) {
