@@ -13,6 +13,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import edu.rosehulman.keinslc.rhithmu.Event;
 import edu.rosehulman.keinslc.rhithmu.MainActivity;
 import edu.rosehulman.keinslc.rhithmu.R;
@@ -25,6 +28,9 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
     private MainActivity mActivity;
     private Event mEvent;
     public static final String ARG_EVENT = "myEventArgument";
+
+    public Calendar mStartTime;
+    public Calendar mEndTime;
 
     public static AddEditDeleteEventDialogFragment newInstance(Event event) {
         AddEditDeleteEventDialogFragment frag = new AddEditDeleteEventDialogFragment();
@@ -50,6 +56,11 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
                 R.layout.dialog_fragment_add_edit_delete_event, null);
         builder.setView(view);
 
+        mEvent = new Event();
+        if(getArguments() != null) {
+            mEvent = getArguments().getParcelable(ARG_EVENT);
+        }
+
         // Buttons
         Button dateButton = (Button) view.findViewById(R.id.event_calendar_edit_button);
         Button startTimeButton = (Button) view.findViewById(R.id.start_time_edit_button);
@@ -67,12 +78,36 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
                 df.show(getFragmentManager(), "Date Pickin Fragin");
             }
         });
+        startTimeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment df = new TimePickerDialogFragment();
+                df.show(getFragmentManager(), "Time Pickin Fragin");
+            }
+        });
+        endTimeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment df = new TimePickerDialogFragment();
+                df.show(getFragmentManager(), "Time Pickin Fragin");
+            }
+        });
 
-//        dateButton.setText(mEvent.getDateAsString());
-//        startTimeButton.setText(mEvent.getStartTime().toString());
-//        endTimeButton.setText(mEvent.getEndTime().toString());
 
-//        mEvent = getArguments().getParcelable(ARG_EVENT);
+        String date = mEvent.getStartTime().toString();
+        if( date != null) {
+            dateButton.setText(date);
+        }
+        String start = mEvent.getStartTime().toString();
+        if(start != null) {
+            startTimeButton.setText(mEvent.getStartTime().toString());
+        }
+        String end = mEvent.getEndTime().toString();
+        if(end != null) {
+            endTimeButton.setText(mEvent.getEndTime().toString());
+        }
+
+
 
 
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -83,4 +118,6 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
         });
         return builder.create();
     }
+
+
 }

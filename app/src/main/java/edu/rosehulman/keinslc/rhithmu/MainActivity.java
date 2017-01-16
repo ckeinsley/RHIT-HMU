@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     private Button mOneDayButton;
     private Button mThreeDayButton;
     private Button mWeekButton;
+    private List<Event> mEvents;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,5 +158,9 @@ public class MainActivity extends AppCompatActivity {
                 mWeekView.goToDate(day);
             }
         });
+    }
+
+    private void delete(Event e){
+        mEvents.remove(e);
     }
 }
