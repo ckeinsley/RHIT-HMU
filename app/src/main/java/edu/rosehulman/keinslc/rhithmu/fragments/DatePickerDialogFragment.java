@@ -3,13 +3,18 @@ package edu.rosehulman.keinslc.rhithmu.fragments;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.DatePicker;
+
+import java.util.Calendar;
 
 import edu.rosehulman.keinslc.rhithmu.R;
 
@@ -19,6 +24,24 @@ import edu.rosehulman.keinslc.rhithmu.R;
 
 public class DatePickerDialogFragment extends DialogFragment {
 
+    public static final int END_DATE_REQUEST_CODE = 2;
+    public static final int START_DATE_REQUEST_CODE = 2;
+    public static final String KEY_MONTH = "MONTH KEY";
+    public static final String KEY_DAY_OF_MONTH = "DAY OF MONTH KEY";
+    public static final String KEY_YEAR = "YEAR KEY";
+    private DatePicker mDatePicker;
+
+
+    public static DatePickerDialogFragment newInstance(int day, int month, int year) {
+        DatePickerDialogFragment df = new DatePickerDialogFragment();
+        Bundle args = new Bundle();
+        args.putInt(KEY_YEAR, year);
+        args.putInt(KEY_DAY_OF_MONTH, day);
+        args.putInt(KEY_MONTH, month);
+        df.setArguments(args);
+        return df;
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -27,14 +50,40 @@ public class DatePickerDialogFragment extends DialogFragment {
                 R.layout.dialog_fragment_date_picker, null);
         builder.setView(view);
 
-        final DatePicker mDatePicker = (DatePicker) view.findViewById(R.id.date_picker);
+        mDatePicker = (DatePicker) view.findViewById(R.id.date_picker);
+
+        Calendar cal = Calendar.getInstance();
+        int year = getArguments().getInt(KEY_YEAR, cal.get(Calendar.YEAR));
+        int month = getArguments().getInt(KEY_MONTH, cal.get(Calendar.MONTH));
+        int day = getArguments().getInt(KEY_DAY_OF_MONTH, cal.get(Calendar.DAY_OF_MONTH));
+
+        mDatePicker.updateDate(year, month, day);
+
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Log.d("DATE PICKER", "okay clicked + " + mDatePicker.getMonth());
+                sendResult(START_DATE_REQUEST_CODE);
             }
         });
         builder.setNegativeButton(android.R.string.cancel, null);
         return builder.create();
     }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d("Date Picker", "date picker year is currently  " + mDatePicker.getYear());
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
+
+    private void sendResult(int request_code) {
+        Intent intent = new Intent();
+
+        intent.putExtra(KEY_MONTH, mDatePicker.getMonth());
+        intent.putExtra(KEY_DAY_OF_MONTH, mDatePicker.getDayOfMonth());
+        intent.putExtra(KEY_YEAR, mDatePicker.getYear());
+
+        getTargetFragment().onActivityResult(getTargetRequestCode(), request_code, intent);
+    }
+
 }

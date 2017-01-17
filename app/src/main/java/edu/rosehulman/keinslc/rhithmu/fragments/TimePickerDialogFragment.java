@@ -19,6 +19,10 @@ import edu.rosehulman.keinslc.rhithmu.R;
 
 public class TimePickerDialogFragment extends DialogFragment {
 
+    public static final int START_TIME_REQUEST_CODE = 11;
+    public static final int END_TIME_REQUEST_CODE = 12;
+
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {

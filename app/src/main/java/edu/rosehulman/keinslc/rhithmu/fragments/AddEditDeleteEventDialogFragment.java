@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -48,7 +49,6 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
         return frag;
     }
 
-
     @Override
     public void onAttach(Context activity) {
         super.onAttach(activity);
@@ -80,7 +80,7 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
             // Should never happen
             mEvent = new Event();
         }
-
+        // Event ID -1 means its a new event
         if (mEvent.getId() == -1) {
             mStartTime = Calendar.getInstance();
             mEndTime = Calendar.getInstance();
@@ -90,30 +90,8 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
             mEndTime = (Calendar) mEvent.getEndTime().clone();
         }
         updateView();
+        setupButtonListeners();
 
-        /* Button Listeners*/
-        // TODO: Set up so that the second dialog fragment can communicate to the first
-        dateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DialogFragment df = new DatePickerDialogFragment();
-                df.show(getFragmentManager(), "Date Pickin Fragin");
-            }
-        });
-        startTimeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DialogFragment df = new TimePickerDialogFragment();
-                df.show(getFragmentManager(), "Time Pickin Fragin");
-            }
-        });
-        endTimeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DialogFragment df = new TimePickerDialogFragment();
-                df.show(getFragmentManager(), "Time Pickin Fragin");
-            }
-        });
         /* Alert Dialog Buttons */
         // Do nothing
         builder.setNegativeButton(android.R.string.cancel, null);
@@ -146,4 +124,52 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
         eventNameEditText.setText(mEvent.getName());
     }
 
+    private void setupButtonListeners() {
+        dateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Create using new instance and provide it a target fragment
+                DialogFragment df = DatePickerDialogFragment.newInstance(mStartTime.get(Calendar.DAY_OF_MONTH), mStartTime.get(Calendar.MONTH), mStartTime.get(Calendar.YEAR));
+                df.setTargetFragment(AddEditDeleteEventDialogFragment.this, DatePickerDialogFragment.START_DATE_REQUEST_CODE);
+                df.show(getFragmentManager(), "DATE_PICKER");
+            }
+        });
+        startTimeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+//                intent.putExtra();
+                DialogFragment df = new TimePickerDialogFragment();
+                df.setTargetFragment(AddEditDeleteEventDialogFragment.this, TimePickerDialogFragment.START_TIME_REQUEST_CODE);
+                df.show(getFragmentManager(), "TIME_PICK");
+            }
+        });
+        endTimeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+//                intent.putExtra();
+                DialogFragment df = new TimePickerDialogFragment();
+                df.setTargetFragment(AddEditDeleteEventDialogFragment.this, TimePickerDialogFragment.END_TIME_REQUEST_CODE);
+                df.show(getFragmentManager(), "TIME_PICK");
+            }
+        });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == DatePickerDialogFragment.START_DATE_REQUEST_CODE) {
+            Log.d("AddEditFragment", "Date picker information recieved");
+            int year = data.getIntExtra(DatePickerDialogFragment.KEY_YEAR, mStartTime.get(Calendar.YEAR));
+            int day = data.getIntExtra(DatePickerDialogFragment.KEY_DAY_OF_MONTH, mStartTime.get(Calendar.DAY_OF_MONTH));
+            int month = data.getIntExtra(DatePickerDialogFragment.KEY_MONTH, mStartTime.get(Calendar.MONTH));
+            mStartTime.set(year, month, day);
+            updateView();
+        } else if (requestCode == TimePickerDialogFragment.START_TIME_REQUEST_CODE) {
+
+        } else if (requestCode == TimePickerDialogFragment.END_TIME_REQUEST_CODE) {
+
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }
