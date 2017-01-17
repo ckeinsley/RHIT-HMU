@@ -125,21 +125,19 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
     }
 
     private void setupButtonListeners() {
+        // Create a new fragment and prepopulate the current data
         dateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Create using new instance and provide it a target fragment
                 DialogFragment df = DatePickerDialogFragment.newInstance(mStartTime.get(Calendar.DAY_OF_MONTH), mStartTime.get(Calendar.MONTH), mStartTime.get(Calendar.YEAR));
                 df.setTargetFragment(AddEditDeleteEventDialogFragment.this, DatePickerDialogFragment.START_DATE_REQUEST_CODE);
-                df.show(getFragmentManager(), "DATE_PICKER");
+                df.show(getActivity().getSupportFragmentManager(), "DATE_PICKER");
             }
         });
         startTimeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent();
-//                intent.putExtra();
-                DialogFragment df = new TimePickerDialogFragment();
+                DialogFragment df = TimePickerDialogFragment.newInstance(mStartTime.get(Calendar.MINUTE), mStartTime.get(Calendar.HOUR_OF_DAY));
                 df.setTargetFragment(AddEditDeleteEventDialogFragment.this, TimePickerDialogFragment.START_TIME_REQUEST_CODE);
                 df.show(getFragmentManager(), "TIME_PICK");
             }
@@ -147,9 +145,7 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
         endTimeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent();
-//                intent.putExtra();
-                DialogFragment df = new TimePickerDialogFragment();
+                DialogFragment df = TimePickerDialogFragment.newInstance(mEndTime.get(Calendar.MINUTE), mEndTime.get(Calendar.HOUR_OF_DAY));
                 df.setTargetFragment(AddEditDeleteEventDialogFragment.this, TimePickerDialogFragment.END_TIME_REQUEST_CODE);
                 df.show(getFragmentManager(), "TIME_PICK");
             }
@@ -159,16 +155,24 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == DatePickerDialogFragment.START_DATE_REQUEST_CODE) {
-            Log.d("AddEditFragment", "Date picker information recieved");
+            // Use the year, day, month returned
             int year = data.getIntExtra(DatePickerDialogFragment.KEY_YEAR, mStartTime.get(Calendar.YEAR));
             int day = data.getIntExtra(DatePickerDialogFragment.KEY_DAY_OF_MONTH, mStartTime.get(Calendar.DAY_OF_MONTH));
             int month = data.getIntExtra(DatePickerDialogFragment.KEY_MONTH, mStartTime.get(Calendar.MONTH));
             mStartTime.set(year, month, day);
             updateView();
         } else if (requestCode == TimePickerDialogFragment.START_TIME_REQUEST_CODE) {
-
+            // Use the minute and hour returned, and keep the year, month, date the same
+            int minute = data.getIntExtra(TimePickerDialogFragment.KEY_MINUTE, mStartTime.get(Calendar.MINUTE));
+            int hour = data.getIntExtra(TimePickerDialogFragment.KEY_HOUR, mStartTime.get(Calendar.HOUR_OF_DAY));
+            mStartTime.set(mStartTime.get(Calendar.YEAR), mStartTime.get(Calendar.MONTH), mStartTime.get(Calendar.DAY_OF_MONTH), hour, minute);
+            updateView();
         } else if (requestCode == TimePickerDialogFragment.END_TIME_REQUEST_CODE) {
-
+            // Use the minute and hour returned, and keep the year, month, date the same
+            int minute = data.getIntExtra(TimePickerDialogFragment.KEY_MINUTE, mEndTime.get(Calendar.MINUTE));
+            int hour = data.getIntExtra(TimePickerDialogFragment.KEY_HOUR, mEndTime.get(Calendar.HOUR_OF_DAY));
+            mEndTime.set(mEndTime.get(Calendar.YEAR), mEndTime.get(Calendar.MONTH), mEndTime.get(Calendar.DAY_OF_MONTH), hour, minute);
+            updateView();
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

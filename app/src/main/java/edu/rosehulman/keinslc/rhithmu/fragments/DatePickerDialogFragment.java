@@ -59,7 +59,7 @@ public class DatePickerDialogFragment extends DialogFragment {
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                sendResult(START_DATE_REQUEST_CODE);
+                sendResult(getTargetRequestCode());
             }
         });
         builder.setNegativeButton(android.R.string.cancel, null);

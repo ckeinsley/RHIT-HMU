@@ -21,9 +21,9 @@ public class EventUtils {
         events.add(new Event(0, "Test Event", "No Location", "Description", "Invitees", startTime, endTime));
     }
 
+    // Hilariously, days are 1 based and months are 0 based... Good job java calendar
     public static String getDateStringFromCalendar(Calendar calendar) {
         String output = "";
-        // TODO: Test Sunday
         output += (daysOfWeek[calendar.get(Calendar.DAY_OF_WEEK) - 1]);
         output += (", ");
         output += (monthsOfYear[calendar.get(Calendar.MONTH)]);
@@ -43,9 +43,14 @@ public class EventUtils {
             output += (hour > 12 ? "" + (hour - 12) : "" + hour);
         }
         output += ":";
-        output += calendar.get(Calendar.MINUTE);
+        int minute = calendar.get(Calendar.MINUTE);
+        if (minute < 10) {
+            output += "0" + minute;
+        } else {
+            output += minute;
+        }
         output += " ";
-        output += (hour > 12 ? "PM" : "AM");
+        output += (hour >= 12 ? "PM" : "AM");
         return output;
     }
 }
