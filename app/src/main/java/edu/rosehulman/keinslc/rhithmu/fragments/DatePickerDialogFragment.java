@@ -6,12 +6,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.DatePicker;
 
 import java.util.Calendar;
@@ -24,7 +21,7 @@ import edu.rosehulman.keinslc.rhithmu.R;
 
 public class DatePickerDialogFragment extends DialogFragment {
 
-    public static final int END_DATE_REQUEST_CODE = 2;
+    public static final int END_DATE_REQUEST_CODE = 3;
     public static final int START_DATE_REQUEST_CODE = 2;
     public static final String KEY_MONTH = "MONTH KEY";
     public static final String KEY_DAY_OF_MONTH = "DAY OF MONTH KEY";
@@ -69,13 +66,8 @@ public class DatePickerDialogFragment extends DialogFragment {
         return builder.create();
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d("Date Picker", "date picker year is currently  " + mDatePicker.getYear());
-        return super.onCreateView(inflater, container, savedInstanceState);
-    }
-
+    // When finished with the okay button, we send a result back to the AddEditDeleteEventDialogFragment to let it know
+    // that there is new data to populate the button with
     private void sendResult(int request_code) {
         Intent intent = new Intent();
 
