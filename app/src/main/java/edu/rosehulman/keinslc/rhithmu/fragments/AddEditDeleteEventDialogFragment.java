@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -26,13 +25,14 @@ import edu.rosehulman.keinslc.rhithmu.Utils.EventUtils;
  */
 
 public class AddEditDeleteEventDialogFragment extends DialogFragment {
-    private MainActivity mActivity;
-    private Event mEvent;
     public static final String ARG_EVENT = "myEventArgument";
-
+    public static final int ADD_CODE = 21;
+    public static final int EDIT_CODE = 22;
+    public static final int DELETE_CODE = 23;
     public Calendar mStartTime;
     public Calendar mEndTime;
-
+    private MainActivity mActivity;
+    private Event mEvent;
     private Button dateButton;
     private Button startTimeButton;
     private Button endTimeButton;
@@ -100,20 +100,36 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
         builder.setNeutralButton(R.string.delete, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // TODO: Delete the event from MainActivity
+                mActivity.onFinishEditDialog(DELETE_CODE, mEvent);
             }
         });
-        // Edit Event
+
+              /* Update the event with the new information. If the event was
+               new (as indicated by an ID of -1) tell main activity to
+               add the event. Otherwise tell main activity to update it's week view  */
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Log.d("FRAG", "OK Clicked");
-                // TODO: Update the event information with the information provided
+                mEvent.setStartTime(mStartTime);
+                mEvent.setEndTime(mEndTime);
+                mEvent.setName(eventNameEditText.getText().toString());
+                mEvent.setLocation(eventLocationEditText.getText().toString());
+                mEvent.setDescription(eventDescriptionEditText.getText().toString());
+                mEvent.setInvitees(eventInviteesEditText.getText().toString());
+                if (mEvent.getId() == -1) {
+                    mEvent.setId(EventUtils.getNewId());
+                    mActivity.onFinishEditDialog(ADD_CODE, mEvent);
+                } else {
+                    mActivity.onFinishEditDialog(EDIT_CODE, mEvent);
+                }
             }
         });
         return builder.create();
     }
 
+    /**
+     * Updates the view upon return from a time/date picker
+     */
     private void updateView() {
         dateButton.setText(getString(R.string.startDateButtonFirstHalf) + EventUtils.getDateStringFromCalendar(mStartTime));
         startTimeButton.setText(getString(R.string.startTimeFirstHalf) + EventUtils.getTimeStringFromCalendar(mStartTime));
@@ -124,6 +140,9 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
         eventNameEditText.setText(mEvent.getName());
     }
 
+    /**
+     * Assigns a listener to the date and time buttons to launch the fragments
+     */
     private void setupButtonListeners() {
         // Create a new fragment and prepopulate the current data
         dateButton.setOnClickListener(new View.OnClickListener() {
@@ -152,6 +171,14 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
         });
     }
 
+    /**
+     * Retrieves the information sent back by the TimePicker or DatePicker Dialog Fragments
+     * depending on which button was clicked
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == DatePickerDialogFragment.START_DATE_REQUEST_CODE) {
@@ -176,4 +203,9 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
+
+    public interface EditEventDialogListener {
+        void onFinishEditDialog(int editCode, Event event);
+    }
+
 }

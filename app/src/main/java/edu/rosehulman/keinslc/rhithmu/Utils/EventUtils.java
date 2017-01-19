@@ -18,7 +18,7 @@ public class EventUtils {
         Calendar startTime = Calendar.getInstance();
         Calendar endTime = Calendar.getInstance();
         endTime.setTimeInMillis(endTime.getTimeInMillis() + 3600000);
-        events.add(new Event(0, "Test Event", "No Location", "Description", "Invitees", startTime, endTime));
+        events.add(new Event(0, "Test Event", "Library", "This is a testable event", "John, Susie, Sally, Rob", startTime, endTime));
     }
 
     // Hilariously, days are 1 based and months are 0 based... Good job java calendar
@@ -52,5 +52,10 @@ public class EventUtils {
         output += " ";
         output += (hour >= 12 ? "PM" : "AM");
         return output;
+    }
+
+    public static Long getNewId() {
+        //TODO: Guarantee that no two IDs are the same
+        return Long.valueOf(17);
     }
 }

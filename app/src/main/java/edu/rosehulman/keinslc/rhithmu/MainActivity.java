@@ -1,9 +1,11 @@
 package edu.rosehulman.keinslc.rhithmu;
 
+import android.content.Intent;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -23,7 +25,8 @@ import java.util.List;
 import edu.rosehulman.keinslc.rhithmu.Utils.EventUtils;
 import edu.rosehulman.keinslc.rhithmu.fragments.AddEditDeleteEventDialogFragment;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AddEditDeleteEventDialogFragment.EditEventDialogListener {
+//public class MainActivity extends AppCompatActivity{
 
     private WeekView mWeekView;
     private Button mMatchScheduleButton;
@@ -57,12 +60,20 @@ public class MainActivity extends AppCompatActivity {
             // TODO Persist data
         }
 
-        // Set an action when any event is clicked.
+        // Display the Description of the event
         mWeekView.setOnEventClickListener(new WeekView.EventClickListener() {
             @Override
             public void onEventClick(WeekViewEvent event, RectF eventRect) {
-                Log.d("MAIN", "On Event Clicked");
-                // TODO generate alert dialog with description of event
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                Event currentEvent = null;
+                for (int i = 0; i < mEvents.size(); i++) {
+                    if (mEvents.get(i).getId() == event.getId()) {
+                        currentEvent = mEvents.get(i);
+                    }
+                }
+                builder.setTitle(currentEvent.getName());
+                builder.setMessage(currentEvent.niceToStringNoName());
+                builder.show();
             }
         });
 
@@ -77,12 +88,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Set long press listener for events.
+        // Pass the event to the dialog fragment for editing or deletion
         mWeekView.setEventLongPressListener(new WeekView.EventLongPressListener() {
             @Override
             public void onEventLongPress(WeekViewEvent event, RectF eventRect) {
                 Log.d("MAIN", "On Event Clicked Long Press");
-                // TODO Load information about event and launch add/edit event activity
+                Event mEvent = null;
+                for (int i = 0; i < mEvents.size(); i++) {
+                    if (mEvents.get(i).getId() == event.getId()) {
+                        mEvent = mEvents.get(i);
+                    }
+                }
+                DialogFragment df = AddEditDeleteEventDialogFragment.newInstance(mEvent);
+                df.show(getSupportFragmentManager(), "add/edit/delete fragment");
             }
         });
 
@@ -93,8 +111,6 @@ public class MainActivity extends AppCompatActivity {
                 Event event = new Event();
                 DialogFragment df = AddEditDeleteEventDialogFragment.newInstance(event);
                 df.show(getSupportFragmentManager(), "add/edit/delete fragment");
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null);
             }
         });
     }
@@ -135,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("MAIN", "Match Schedules Clicked");
             }
         });
+
         mTodayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -149,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
                 mWeekView.goToDate(day);
             }
         });
+
         mThreeDayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -157,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
                 mWeekView.goToDate(day);
             }
         });
+
         mWeekButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -167,7 +186,23 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void delete(Event e) {
-        mEvents.remove(e);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onFinishEditDialog(int editCode, Event event) {
+        if (editCode == AddEditDeleteEventDialogFragment.ADD_CODE) {
+            mEvents.add(event);
+            mWeekView.notifyDatasetChanged();
+        }
+        if (editCode == AddEditDeleteEventDialogFragment.DELETE_CODE) {
+            mEvents.remove(event);
+            mWeekView.notifyDatasetChanged();
+        }
+        if (editCode == AddEditDeleteEventDialogFragment.EDIT_CODE) {
+            mWeekView.notifyDatasetChanged();
+        }
     }
 }

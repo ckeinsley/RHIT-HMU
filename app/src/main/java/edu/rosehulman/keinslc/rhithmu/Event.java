@@ -7,12 +7,25 @@ import com.alamkanak.weekview.WeekViewEvent;
 
 import java.util.Calendar;
 
+import edu.rosehulman.keinslc.rhithmu.Utils.EventUtils;
+
 /**
  * Created by keinslc on 1/15/2017.
  */
 
 public class Event extends WeekViewEvent implements Parcelable {
 
+    public static final Creator<Event> CREATOR = new Creator<Event>() {
+        @Override
+        public Event createFromParcel(Parcel in) {
+            return new Event(in);
+        }
+
+        @Override
+        public Event[] newArray(int size) {
+            return new Event[size];
+        }
+    };
     private String mDescription;
     private String mInvitees;
 
@@ -30,18 +43,6 @@ public class Event extends WeekViewEvent implements Parcelable {
         mDescription = in.readString();
         mInvitees = in.readString();
     }
-
-    public static final Creator<Event> CREATOR = new Creator<Event>() {
-        @Override
-        public Event createFromParcel(Parcel in) {
-            return new Event(in);
-        }
-
-        @Override
-        public Event[] newArray(int size) {
-            return new Event[size];
-        }
-    };
 
     public String getDescription() {
         return mDescription;
@@ -68,5 +69,31 @@ public class Event extends WeekViewEvent implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mDescription);
         dest.writeString(mInvitees);
+    }
+
+    @Override
+    public String toString() {
+        return "Event{" +
+                "mName='" + getName() + '\'' +
+                "mStartTime='" + getStartTime().getTime().toString() + '\'' +
+                "mEndTime='" + getEndTime().getTime().toString() + '\'' +
+                "mDescription='" + mDescription + '\'' +
+                ", mInvitees='" + mInvitees + '\'' +
+                '}';
+    }
+
+    public String niceToStringNoName() {
+        String output = "From " + EventUtils.getDateStringFromCalendar(getStartTime()) + ' ' + EventUtils.getTimeStringFromCalendar(getStartTime()) +
+                "\nuntil " + EventUtils.getDateStringFromCalendar(getEndTime()) + ' ' + EventUtils.getTimeStringFromCalendar(getEndTime()) + '\n';
+        if (!getLocation().isEmpty()) {
+            output += "at " + getLocation() + '\n';
+        }
+        if (!getInvitees().isEmpty()) {
+            output += "with " + getInvitees() + '\n';
+        }
+        if (!getDescription().isEmpty()) {
+            output += getDescription();
+        }
+        return output;
     }
 }
