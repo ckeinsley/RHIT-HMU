@@ -202,6 +202,7 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
             mWeekView.notifyDatasetChanged();
         }
         if (editCode == AddEditDeleteEventDialogFragment.EDIT_CODE) {
+            //TODO Handle rotations during an edit
             mWeekView.notifyDatasetChanged();
         }
     }

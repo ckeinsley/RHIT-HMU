@@ -63,6 +63,10 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
                 R.layout.dialog_fragment_add_edit_delete_event, null);
         builder.setView(view);
 
+        // TODO Add an END day button for cross - day events
+        // TODO add sanity checks for date/time information
+
+
         // Buttons
         dateButton = (Button) view.findViewById(R.id.event_calendar_edit_button);
         startTimeButton = (Button) view.findViewById(R.id.start_time_edit_button);
