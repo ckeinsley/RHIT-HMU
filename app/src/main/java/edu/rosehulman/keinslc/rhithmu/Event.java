@@ -26,6 +26,7 @@ public class Event extends WeekViewEvent implements Parcelable {
             return new Event[size];
         }
     };
+    private String key;
     private String mDescription;
     private String mInvitees;
 
@@ -58,6 +59,14 @@ public class Event extends WeekViewEvent implements Parcelable {
 
     public void setInvitees(String mInvitees) {
         this.mInvitees = mInvitees;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 
     @Override

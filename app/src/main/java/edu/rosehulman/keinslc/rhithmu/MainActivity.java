@@ -21,6 +21,9 @@ import com.alamkanak.weekview.WeekViewEvent;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -29,7 +32,7 @@ import java.util.List;
 import edu.rosehulman.keinslc.rhithmu.Utils.EventUtils;
 import edu.rosehulman.keinslc.rhithmu.fragments.AddEditDeleteEventDialogFragment;
 
-public class MainActivity extends AppCompatActivity implements AddEditDeleteEventDialogFragment.EditEventDialogListener {
+public class MainActivity extends AppCompatActivity implements AddEditDeleteEventDialogFragment.EditEventDialogListener, ChildEventListener {
 //public class MainActivity extends AppCompatActivity{
 
     private WeekView mWeekView;
@@ -85,7 +88,6 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
         intializeFirebaseListeners();
         mFirebaseAuth.signInWithEmailAndPassword("default@rhit.edu","password")
                 .addOnCompleteListener(mOnCompleteListener);
-
 
     }
 
@@ -151,6 +153,20 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
                 }
             }
         };
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+    }
+
+    @Override
+    protected  void onStop() {
+        super.onStop();
+        if (mAuthStateListener != null) {
+            mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+        }
     }
 
     @Override
@@ -243,6 +259,54 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
             //TODO Handle rotations during an edit
             mWeekView.notifyDatasetChanged();
         }
+    }
+
+    @Override
+    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+        Event event = dataSnapshot.getValue(Event.class);
+        event.setKey(dataSnapshot.getKey());
+        mEvents.add(event);
+        mWeekView.notifyDatasetChanged();
+    }
+
+    @Override
+    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+        String keyChanged = dataSnapshot.getKey();
+        Event changed = dataSnapshot.getValue(Event.class);
+        for(Event event : mEvents){
+            if(event.getKey().equals(changed.getKey())){
+                event.setStartTime(changed.getStartTime());
+                event.setEndTime(changed.getEndTime());
+                event.setName(changed.getName());
+                event.setLocation(changed.getLocation());
+                event.setDescription(changed.getDescription());
+                event.setInvitees(changed.getInvitees());
+                mWeekView.notifyDatasetChanged();
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void onChildRemoved(DataSnapshot dataSnapshot) {
+        String keyRemoved = dataSnapshot.getKey();
+        for(int i = 0; i < mEvents.size(); i++ ){
+            if(mEvents.get(i).getKey().equals(keyRemoved)){
+                mEvents.remove(i);
+                mWeekView.notifyDatasetChanged();
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+        //not used
+    }
+
+    @Override
+    public void onCancelled(DatabaseError databaseError) {
+        Log.e("WeekViewMan", "onCancelled called");
     }
 
 }

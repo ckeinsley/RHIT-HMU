@@ -13,6 +13,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.firebase.database.DatabaseReference;
+
 import java.util.Calendar;
 
 import edu.rosehulman.keinslc.rhithmu.Event;
@@ -40,6 +42,7 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
     private EditText eventLocationEditText;
     private EditText eventInviteesEditText;
     private EditText eventDescriptionEditText;
+    private DatabaseReference mEventRef;
 
     public static AddEditDeleteEventDialogFragment newInstance(Event event) {
         AddEditDeleteEventDialogFragment frag = new AddEditDeleteEventDialogFragment();
