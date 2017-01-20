@@ -67,6 +67,10 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
 
         //Fill mEvents
         mEvents = new ArrayList<>();
+        // TODO fix calendar bugs since it crashes for some dumb reason
+//        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+//        dbRef.addChildEventListener(this);
+
         EventUtils.createDefaultEvents(mEvents);
         if (savedInstanceState != null) {
             // TODO Persist data
@@ -86,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
         //temp: hardcoded in Authentication, will be resolve in later milestone
         mFirebaseAuth = FirebaseAuth.getInstance();
         intializeFirebaseListeners();
-        mFirebaseAuth.signInWithEmailAndPassword("default@rhit.edu","password")
+        mFirebaseAuth.signInWithEmailAndPassword("default@rhit.edu", "password")
                 .addOnCompleteListener(mOnCompleteListener);
 
     }
@@ -141,13 +145,13 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                    //TODO: Implement
+                //TODO: Implement
             }
         };
         mOnCompleteListener = new OnCompleteListener() {
             @Override
             public void onComplete(@NonNull Task task) {
-                if (!task.isSuccessful()){
+                if (!task.isSuccessful()) {
                     //TODO: Implement a proper login failed catch
                     Log.e("OnComplete", "login failed");
                 }
@@ -162,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
     }
 
     @Override
-    protected  void onStop() {
+    protected void onStop() {
         super.onStop();
         if (mAuthStateListener != null) {
             mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
@@ -273,8 +277,8 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
         String keyChanged = dataSnapshot.getKey();
         Event changed = dataSnapshot.getValue(Event.class);
-        for(Event event : mEvents){
-            if(event.getKey().equals(changed.getKey())){
+        for (Event event : mEvents) {
+            if (event.getKey().equals(changed.getKey())) {
                 event.setStartTime(changed.getStartTime());
                 event.setEndTime(changed.getEndTime());
                 event.setName(changed.getName());
@@ -290,8 +294,8 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
     @Override
     public void onChildRemoved(DataSnapshot dataSnapshot) {
         String keyRemoved = dataSnapshot.getKey();
-        for(int i = 0; i < mEvents.size(); i++ ){
-            if(mEvents.get(i).getKey().equals(keyRemoved)){
+        for (int i = 0; i < mEvents.size(); i++) {
+            if (mEvents.get(i).getKey().equals(keyRemoved)) {
                 mEvents.remove(i);
                 mWeekView.notifyDatasetChanged();
                 return;

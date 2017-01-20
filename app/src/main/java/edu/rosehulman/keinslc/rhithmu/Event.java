@@ -28,15 +28,11 @@ public class Event extends WeekViewEvent implements Parcelable {
         }
     };
     private String key;
-
     private String description;
     private String invitees;
 
-
-    //TODO Initialize things to be blank so that firebase can pull them in
     public Event() {
         this(-1, "", "", "", "", Calendar.getInstance(), Calendar.getInstance());
-        setId(-1);
     }
 
     public Event(long id, String name, String location, String description, String invitees, Calendar start, Calendar end) {

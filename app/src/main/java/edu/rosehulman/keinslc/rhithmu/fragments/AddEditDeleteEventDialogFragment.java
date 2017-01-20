@@ -130,13 +130,12 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
                 } else {
                     mActivity.onFinishEditDialog(EDIT_CODE, mEvent);
                 }
+                mEventRef = FirebaseDatabase.getInstance().getReference();
+                mEventRef.push().setValue(mEvent);
             }
         });
 
         //TODO: More Firebase based things
-
-        mEventRef = FirebaseDatabase.getInstance().getReference();
-        mEventRef.push().setValue(mEvent);
         return builder.create();
     }
 
