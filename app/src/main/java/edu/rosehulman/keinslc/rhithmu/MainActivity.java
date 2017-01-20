@@ -24,6 +24,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -42,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
     private Button mThreeDayButton;
     private Button mWeekButton;
     private List<Event> mEvents;
+    private DatabaseReference ref;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private OnCompleteListener mOnCompleteListener;
@@ -68,8 +71,8 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
         //Fill mEvents
         mEvents = new ArrayList<>();
         // TODO fix calendar bugs since it crashes for some dumb reason
-//        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
-//        dbRef.addChildEventListener(this);
+        ref = FirebaseDatabase.getInstance().getReference();
+        ref.addChildEventListener(this);
 
         EventUtils.createDefaultEvents(mEvents);
         if (savedInstanceState != null) {

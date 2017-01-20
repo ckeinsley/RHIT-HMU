@@ -30,15 +30,24 @@ public class Event extends WeekViewEvent implements Parcelable {
     private String key;
     private String description;
     private String invitees;
+    private long mStartTimeInMilis;
+    private long mEndTimeInMilis;
+
 
     public Event() {
         this(-1, "", "", "", "", Calendar.getInstance(), Calendar.getInstance());
     }
 
     public Event(long id, String name, String location, String description, String invitees, Calendar start, Calendar end) {
-        super(id, name, location, start, end);
         this.description = description;
         this.invitees = invitees;
+        start.setTimeInMillis(mStartTimeInMilis);
+        end.setTimeInMillis(mEndTimeInMilis);
+        setStartTime(start);
+        setEndTime(end);
+        setName(name);
+        setId(id);
+        setLocation(location);
     }
 
     protected Event(Parcel in) {
@@ -62,6 +71,29 @@ public class Event extends WeekViewEvent implements Parcelable {
         this.invitees = mInvitees;
     }
 
+    public long getEndTimeInMilis() {
+        return mEndTimeInMilis;
+    }
+
+    public void setEndTimeInMilis(long mEndTimeInMilis) {
+        this.mEndTimeInMilis = mEndTimeInMilis;
+        Calendar cal = getEndTime();
+        cal.setTimeInMillis(mEndTimeInMilis);
+        setEndTime(cal);
+    }
+
+
+    public long getStartTimeInMilis() {
+        return mStartTimeInMilis;
+    }
+
+    public void setStartTimeInMilis(long mStartTimeInMilis) {
+        this.mStartTimeInMilis = mStartTimeInMilis;
+        Calendar cal = getStartTime();
+        cal.setTimeInMillis(mStartTimeInMilis);
+        setStartTime(cal);
+    }
+
     @Exclude
     public String getKey() {
         return key;
@@ -69,6 +101,30 @@ public class Event extends WeekViewEvent implements Parcelable {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    @Exclude
+    @Override
+    public Calendar getEndTime() {
+        return super.getEndTime();
+    }
+
+    @Override
+    public void setEndTime(Calendar endTime) {
+        super.setEndTime(endTime);
+        mEndTimeInMilis = endTime.getTimeInMillis();
+    }
+
+    @Exclude
+    @Override
+    public Calendar getStartTime() {
+        return super.getStartTime();
+    }
+
+    @Override
+    public void setStartTime(Calendar startTime) {
+        super.setStartTime(startTime);
+        mStartTimeInMilis = startTime.getTimeInMillis();
     }
 
     @Override
