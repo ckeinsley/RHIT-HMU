@@ -199,6 +199,7 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
             int day = data.getIntExtra(DatePickerDialogFragment.KEY_DAY_OF_MONTH, mStartTime.get(Calendar.DAY_OF_MONTH));
             int month = data.getIntExtra(DatePickerDialogFragment.KEY_MONTH, mStartTime.get(Calendar.MONTH));
             mStartTime.set(year, month, day);
+            mEndTime.set(year, month, day);
             updateView();
         } else if (requestCode == TimePickerDialogFragment.START_TIME_REQUEST_CODE) {
             // Use the minute and hour returned, and keep the year, month, date the same
