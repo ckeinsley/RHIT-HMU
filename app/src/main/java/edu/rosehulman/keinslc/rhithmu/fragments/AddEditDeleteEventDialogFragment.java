@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Calendar;
 
@@ -131,6 +132,11 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
                 }
             }
         });
+
+        //TODO: More Firebase based things
+
+        mEventRef = FirebaseDatabase.getInstance().getReference();
+        mEventRef.push().setValue(mEvent);
         return builder.create();
     }
 

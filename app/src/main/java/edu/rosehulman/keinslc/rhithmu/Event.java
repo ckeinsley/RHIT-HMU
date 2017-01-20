@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.alamkanak.weekview.WeekViewEvent;
+import com.google.firebase.database.Exclude;
 
 import java.util.Calendar;
 
@@ -27,40 +28,45 @@ public class Event extends WeekViewEvent implements Parcelable {
         }
     };
     private String key;
-    private String mDescription;
-    private String mInvitees;
 
+    private String description;
+    private String invitees;
+
+
+    //TODO Initialize things to be blank so that firebase can pull them in
     public Event() {
+        this(-1, "", "", "", "", Calendar.getInstance(), Calendar.getInstance());
         setId(-1);
     }
 
     public Event(long id, String name, String location, String description, String invitees, Calendar start, Calendar end) {
         super(id, name, location, start, end);
-        mDescription = description;
-        mInvitees = invitees;
+        this.description = description;
+        this.invitees = invitees;
     }
 
     protected Event(Parcel in) {
-        mDescription = in.readString();
-        mInvitees = in.readString();
+        description = in.readString();
+        invitees = in.readString();
     }
 
     public String getDescription() {
-        return mDescription;
+        return description;
     }
 
     public void setDescription(String mDescription) {
-        this.mDescription = mDescription;
+        this.description = mDescription;
     }
 
     public String getInvitees() {
-        return mInvitees;
+        return invitees;
     }
 
     public void setInvitees(String mInvitees) {
-        this.mInvitees = mInvitees;
+        this.invitees = mInvitees;
     }
 
+    @Exclude
     public String getKey() {
         return key;
     }
@@ -76,8 +82,8 @@ public class Event extends WeekViewEvent implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(mDescription);
-        dest.writeString(mInvitees);
+        dest.writeString(description);
+        dest.writeString(invitees);
     }
 
     @Override
@@ -86,8 +92,8 @@ public class Event extends WeekViewEvent implements Parcelable {
                 "mName='" + getName() + '\'' +
                 "mStartTime='" + getStartTime().getTime().toString() + '\'' +
                 "mEndTime='" + getEndTime().getTime().toString() + '\'' +
-                "mDescription='" + mDescription + '\'' +
-                ", mInvitees='" + mInvitees + '\'' +
+                "description='" + description + '\'' +
+                ", invitees='" + invitees + '\'' +
                 '}';
     }
 
