@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "264476025031",
+    "firebase_url": "https://rhit-hmu.firebaseio.com",
+    "project_id": "rhit-hmu",
+    "storage_bucket": "rhit-hmu.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:264476025031:android:4f7ec575bc81329c",
+        "android_client_info": {
+          "package_name": "edu.rosehulman.keinslc.rhithmu"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "264476025031-88sf3nt03rlea66fhdtfi0tnejm77d43.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxJOXm0m7NghUE6s208aatMmzAGAfS_2I"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
