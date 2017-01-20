@@ -3,6 +3,7 @@ package edu.rosehulman.keinslc.rhithmu;
 import android.content.Intent;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
@@ -17,6 +18,9 @@ import android.widget.Button;
 import com.alamkanak.weekview.MonthLoader;
 import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -35,6 +39,9 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
     private Button mThreeDayButton;
     private Button mWeekButton;
     private List<Event> mEvents;
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
+    private OnCompleteListener mOnCompleteListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +58,9 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
         mOneDayButton = (Button) findViewById(R.id.oneDayButton);
         mThreeDayButton = (Button) findViewById(R.id.threeDayButton);
         mWeekButton = (Button) findViewById(R.id.sevenDayButton);
+
         setButtonListeners();
+        initializeWeekViewListeners();
 
         //Fill mEvents
         mEvents = new ArrayList<>();
@@ -60,6 +69,27 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
             // TODO Persist data
         }
 
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Event event = new Event();
+                DialogFragment df = AddEditDeleteEventDialogFragment.newInstance(event);
+                df.show(getSupportFragmentManager(), "add/edit/delete fragment");
+            }
+        });
+
+        //TODO: Implement complete firebase login procedure
+        //temp: hardcoded in Authentication, will be resolve in later milestone
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        intializeFirebaseListeners();
+        mFirebaseAuth.signInWithEmailAndPassword("default@rhit.edu","password")
+                .addOnCompleteListener(mOnCompleteListener);
+
+
+    }
+
+    private void initializeWeekViewListeners() {
         // Display the Description of the event
         mWeekView.setOnEventClickListener(new WeekView.EventClickListener() {
             @Override
@@ -103,16 +133,24 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
                 df.show(getSupportFragmentManager(), "add/edit/delete fragment");
             }
         });
+    }
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+    private void intializeFirebaseListeners() {
+        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
-            public void onClick(View view) {
-                Event event = new Event();
-                DialogFragment df = AddEditDeleteEventDialogFragment.newInstance(event);
-                df.show(getSupportFragmentManager(), "add/edit/delete fragment");
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                    //TODO: Implement
             }
-        });
+        };
+        mOnCompleteListener = new OnCompleteListener() {
+            @Override
+            public void onComplete(@NonNull Task task) {
+                if (!task.isSuccessful()){
+                    //TODO: Implement a proper login failed catch
+                    Log.e("OnComplete", "login failed");
+                }
+            }
+        };
     }
 
     @Override
@@ -206,4 +244,5 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
             mWeekView.notifyDatasetChanged();
         }
     }
+
 }
