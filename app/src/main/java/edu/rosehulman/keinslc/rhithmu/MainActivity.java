@@ -1,6 +1,5 @@
 package edu.rosehulman.keinslc.rhithmu;
 
-import android.content.Intent;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -69,12 +68,8 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
 
         //Fill mEvents
         mEvents = new ArrayList<>();
-        // TODO fix calendar bugs since it crashes for some dumb reason
 
         //EventUtils.createDefaultEvents(mEvents);
-        if (savedInstanceState != null) {
-            // TODO Persist data
-        }
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -96,6 +91,9 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
         mEventRef = FirebaseDatabase.getInstance().getReference();
     }
 
+    /**
+     * Sets the WeekView Listeners
+     */
     private void initializeWeekViewListeners() {
         // Display the Description of the event
         mWeekView.setOnEventClickListener(new WeekView.EventClickListener() {
@@ -144,6 +142,9 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
         });
     }
 
+    /**
+     * Sets up the FireBase Listeners
+     */
     private void intializeFirebaseListeners() {
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -162,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
         };
     }
 
+    /*LIFECYCLE METHODS FOR FIREBASE*/
     @Override
     protected void onStart() {
         super.onStart();
@@ -188,6 +190,7 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
         }
     }
 
+    /*OPTION MENU METHODS*/
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -211,11 +214,12 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
                 Log.d("MAIN", "Import Classes Pressed");
                 return true;
         }
-
-
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Sets up the button listeners on the weekview and schedule button
+     */
     private void setButtonListeners() {
         mMatchScheduleButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -259,27 +263,7 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
         });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-//    @Override
-//    public void onFinishEditDialog(int editCode, Event event) {
-//        if (editCode == AddEditDeleteEventDialogFragment.ADD_CODE) {
-//            mEvents.add(event);
-//            mWeekView.notifyDatasetChanged();
-//        }
-//        if (editCode == AddEditDeleteEventDialogFragment.DELETE_CODE) {
-//            mEvents.remove(event);
-//            mWeekView.notifyDatasetChanged();
-//        }
-//        if (editCode == AddEditDeleteEventDialogFragment.EDIT_CODE) {
-//            //TODO Handle rotations during an edit
-//            mWeekView.notifyDatasetChanged();
-//        }
-//    }
-
+    /*FIREBASE CHILD LISTENER METHODS*/
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
         Event event = dataSnapshot.getValue(Event.class);
