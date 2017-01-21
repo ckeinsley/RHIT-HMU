@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -67,6 +68,8 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
                 R.layout.dialog_fragment_add_edit_delete_event, null);
         builder.setView(view);
 
+        mEventRef = FirebaseDatabase.getInstance().getReference();
+
         // TODO Add an END day button for cross - day events
         // TODO add sanity checks for date/time information
 
@@ -108,7 +111,7 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
         builder.setNeutralButton(R.string.delete, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                mActivity.onFinishEditDialog(DELETE_CODE, mEvent);
+                mEventRef.child(mEvent.getKey());
             }
         });
 
@@ -126,17 +129,29 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
                 mEvent.setInvitees(eventInviteesEditText.getText().toString());
                 if (mEvent.getId() == -1) {
                     mEvent.setId(EventUtils.getNewId());
-                    mActivity.onFinishEditDialog(ADD_CODE, mEvent);
+                    mEventRef.push().setValue(mEvent);
+                    //mActivity.onFinishEditDialog(ADD_CODE, mEvent);
                 } else {
-                    mActivity.onFinishEditDialog(EDIT_CODE, mEvent);
+                    mEventRef.child(mEvent.getKey()).setValue(mEvent);
+                    //mActivity.onFinishEditDialog(EDIT_CODE, mEvent);
                 }
-                mEventRef = FirebaseDatabase.getInstance().getReference();
-                mEventRef.push().setValue(mEvent);
             }
         });
 
         //TODO: More Firebase based things
         return builder.create();
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        mEventRef.removeEventListener((ChildEventListener) getActivity());
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        mEventRef.addChildEventListener((ChildEventListener) getActivity());
     }
 
     /**

@@ -31,10 +31,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import edu.rosehulman.keinslc.rhithmu.Utils.EventUtils;
 import edu.rosehulman.keinslc.rhithmu.fragments.AddEditDeleteEventDialogFragment;
 
-public class MainActivity extends AppCompatActivity implements AddEditDeleteEventDialogFragment.EditEventDialogListener, ChildEventListener {
+public class MainActivity extends AppCompatActivity implements ChildEventListener {
 //public class MainActivity extends AppCompatActivity{
 
     private WeekView mWeekView;
@@ -44,8 +43,8 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
     private Button mThreeDayButton;
     private Button mWeekButton;
     private List<Event> mEvents;
-    private DatabaseReference ref;
     private FirebaseAuth mFirebaseAuth;
+    private DatabaseReference mEventRef;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private OnCompleteListener mOnCompleteListener;
 
@@ -71,10 +70,8 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
         //Fill mEvents
         mEvents = new ArrayList<>();
         // TODO fix calendar bugs since it crashes for some dumb reason
-        ref = FirebaseDatabase.getInstance().getReference();
-        ref.addChildEventListener(this);
 
-        EventUtils.createDefaultEvents(mEvents);
+        //EventUtils.createDefaultEvents(mEvents);
         if (savedInstanceState != null) {
             // TODO Persist data
         }
@@ -96,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
         mFirebaseAuth.signInWithEmailAndPassword("default@rhit.edu", "password")
                 .addOnCompleteListener(mOnCompleteListener);
 
+        mEventRef = FirebaseDatabase.getInstance().getReference();
     }
 
     private void initializeWeekViewListeners() {
@@ -103,10 +101,11 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
         mWeekView.setOnEventClickListener(new WeekView.EventClickListener() {
             @Override
             public void onEventClick(WeekViewEvent event, RectF eventRect) {
+                Event event1 = (Event) event;
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 Event currentEvent = null;
                 for (int i = 0; i < mEvents.size(); i++) {
-                    if (mEvents.get(i).getId() == event.getId()) {
+                    if (mEvents.get(i).getKey().equals(event1.getKey())) {
                         currentEvent = mEvents.get(i);
                     }
                 }
@@ -131,10 +130,11 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
         mWeekView.setEventLongPressListener(new WeekView.EventLongPressListener() {
             @Override
             public void onEventLongPress(WeekViewEvent event, RectF eventRect) {
+                Event event1 = (Event) event; //kinda sketch
                 Log.d("MAIN", "On Event Clicked Long Press");
                 Event mEvent = null;
                 for (int i = 0; i < mEvents.size(); i++) {
-                    if (mEvents.get(i).getId() == event.getId()) {
+                    if (mEvents.get(i).getKey().equals(event1.getKey())) {
                         mEvent = mEvents.get(i);
                     }
                 }
@@ -166,6 +166,18 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
     protected void onStart() {
         super.onStart();
         mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        mEventRef.removeEventListener(this);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        mEventRef.addChildEventListener(this);
     }
 
     @Override
@@ -252,21 +264,21 @@ public class MainActivity extends AppCompatActivity implements AddEditDeleteEven
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    @Override
-    public void onFinishEditDialog(int editCode, Event event) {
-        if (editCode == AddEditDeleteEventDialogFragment.ADD_CODE) {
-            mEvents.add(event);
-            mWeekView.notifyDatasetChanged();
-        }
-        if (editCode == AddEditDeleteEventDialogFragment.DELETE_CODE) {
-            mEvents.remove(event);
-            mWeekView.notifyDatasetChanged();
-        }
-        if (editCode == AddEditDeleteEventDialogFragment.EDIT_CODE) {
-            //TODO Handle rotations during an edit
-            mWeekView.notifyDatasetChanged();
-        }
-    }
+//    @Override
+//    public void onFinishEditDialog(int editCode, Event event) {
+//        if (editCode == AddEditDeleteEventDialogFragment.ADD_CODE) {
+//            mEvents.add(event);
+//            mWeekView.notifyDatasetChanged();
+//        }
+//        if (editCode == AddEditDeleteEventDialogFragment.DELETE_CODE) {
+//            mEvents.remove(event);
+//            mWeekView.notifyDatasetChanged();
+//        }
+//        if (editCode == AddEditDeleteEventDialogFragment.EDIT_CODE) {
+//            //TODO Handle rotations during an edit
+//            mWeekView.notifyDatasetChanged();
+//        }
+//    }
 
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
