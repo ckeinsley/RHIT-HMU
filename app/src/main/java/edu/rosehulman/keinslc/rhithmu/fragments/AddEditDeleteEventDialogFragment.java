@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.DatePicker;
@@ -32,6 +33,8 @@ import edu.rosehulman.keinslc.rhithmu.Utils.EventUtils;
 
 public class AddEditDeleteEventDialogFragment extends DialogFragment {
     public static final String ARG_EVENT = "myEventArgument";
+    public static final String ARG_KEY = "myEventKey";
+    public static final String ARG_PATH = "userPath";
     public static final int ADD_CODE = 21;
     public static final int EDIT_CODE = 22;
     public static final int DELETE_CODE = 23;
@@ -56,10 +59,12 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
     private EditText eventDescriptionEditText;
     private DatabaseReference mEventRef;
 
-    public static AddEditDeleteEventDialogFragment newInstance(Event event) {
+    public static AddEditDeleteEventDialogFragment newInstance(Event event, String path) {
         AddEditDeleteEventDialogFragment frag = new AddEditDeleteEventDialogFragment();
         Bundle args = new Bundle();
         args.putParcelable(ARG_EVENT, event);
+        args.putString(ARG_KEY, event.getKey());
+        args.putString(ARG_PATH, path);
         frag.setArguments(args);
         return frag;
     }
@@ -78,7 +83,19 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
                 R.layout.dialog_fragment_add_edit_delete_event, null);
         builder.setView(view);
 
-        mEventRef = FirebaseDatabase.getInstance().getReference();
+        // The arguments cannot be null, new event must be passed in at least
+        if (getArguments() != null) {
+            String key = getArguments().getString(ARG_KEY);
+            String path = getArguments().getString(ARG_PATH);
+            mEvent = getArguments().getParcelable(ARG_EVENT);
+            mEventRef = FirebaseDatabase.getInstance().getReference().child(path);
+        } else {
+            // Should never happen
+            Log.e("CRUD Fragment", "no arguments");
+            //mEvent = new Event();
+        }
+
+
 
         // Buttons (TextViews)
         startDateTextView = (TextView) view.findViewById(R.id.startDateTextView);
@@ -97,13 +114,7 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
         eventInviteesEditText = (EditText) view.findViewById(R.id.event_invitees_editText);
         eventDescriptionEditText = (EditText) view.findViewById(R.id.event_description_editText);
 
-        // The arguments cannot be null, new event must be passed in at least
-        if (getArguments() != null) {
-            mEvent = getArguments().getParcelable(ARG_EVENT);
-        } else {
-            // Should never happen
-            mEvent = new Event();
-        }
+
         // Event ID -1 means its a new event
         if (mEvent.getId() == -1) {
             mStartTime = Calendar.getInstance();
@@ -124,7 +135,7 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
         builder.setNeutralButton(R.string.delete, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                mEventRef.child(mEvent.getKey());
+                mEventRef.child(mEvent.getKey()).removeValue();
             }
         });
 

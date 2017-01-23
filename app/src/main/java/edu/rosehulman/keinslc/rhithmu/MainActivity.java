@@ -20,6 +20,7 @@ import com.alamkanak.weekview.WeekViewEvent;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
     private DatabaseReference mEventRef;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     private OnCompleteListener mOnCompleteListener;
+    private String mPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,24 +73,24 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
 
         //EventUtils.createDefaultEvents(mEvents);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Event event = new Event();
-                DialogFragment df = AddEditDeleteEventDialogFragment.newInstance(event);
-                df.show(getSupportFragmentManager(), "add/edit/delete fragment");
-            }
-        });
-
         //TODO: Implement complete firebase login procedure
         //temp: hardcoded in Authentication, will be resolve in later milestone
         mFirebaseAuth = FirebaseAuth.getInstance();
         intializeFirebaseListeners();
         mFirebaseAuth.signInWithEmailAndPassword("default@rhit.edu", "password")
                 .addOnCompleteListener(mOnCompleteListener);
+        //mEventRef = FirebaseDatabase.getInstance().getReference().child(mPath);
 
-        mEventRef = FirebaseDatabase.getInstance().getReference();
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Event event = new Event();
+                DialogFragment df = AddEditDeleteEventDialogFragment.newInstance(event, mPath);
+                df.show(getSupportFragmentManager(), "add/edit/delete fragment");
+            }
+        });
     }
 
     /**
@@ -136,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
                         mEvent = mEvents.get(i);
                     }
                 }
-                DialogFragment df = AddEditDeleteEventDialogFragment.newInstance(mEvent);
+                DialogFragment df = AddEditDeleteEventDialogFragment.newInstance(mEvent, mPath);
                 df.show(getSupportFragmentManager(), "add/edit/delete fragment");
             }
         });
@@ -150,6 +152,12 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 //TODO: Implement
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if( user != null) {
+                    mPath = "users/" + user.getUid();
+                    mEventRef = FirebaseDatabase.getInstance().getReference().child(mPath);
+                    mEventRef.addChildEventListener(MainActivity.this);
+                }
             }
         };
         mOnCompleteListener = new OnCompleteListener() {
@@ -179,7 +187,9 @@ public class MainActivity extends AppCompatActivity implements ChildEventListene
     @Override
     public void onResume(){
         super.onResume();
-        mEventRef.addChildEventListener(this);
+        if(mEventRef != null) {
+            mEventRef.addChildEventListener(this);
+        }
     }
 
     @Override
