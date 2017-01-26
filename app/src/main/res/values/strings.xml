@@ -16,4 +16,9 @@
     <string name="recurrenceTextViewLabel">Recurring</string>
     <string name="delete">Delete</string>
     <string name="endDateButtonFirstHalf">End Day: \n\t</string>
+    <string name="match_schedule_button_text">Match Schedule</string>
+    <string name="today_button_text">Today</string>
+    <string name="one_day_button_text">One Day</string>
+    <string name="three_day_button_text">Three Day</string>
+    <string name="week_button_text">Week</string>
 </resources>

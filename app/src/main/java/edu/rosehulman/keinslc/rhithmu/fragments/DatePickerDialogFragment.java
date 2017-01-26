@@ -66,7 +66,7 @@ public class DatePickerDialogFragment extends DialogFragment {
         return builder.create();
     }
 
-    // When finished with the okay button, we send a result back to the AddEditDeleteEventDialogFragment to let it know
+    // When finished with the okay button, we send a result back to the AddEditDeleteEventFragment to let it know
     // that there is new data to populate the button with
     private void sendResult(int request_code) {
         Intent intent = new Intent();

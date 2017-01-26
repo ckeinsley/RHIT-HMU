@@ -1,16 +1,15 @@
 package edu.rosehulman.keinslc.rhithmu.fragments;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -23,7 +22,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.Calendar;
 
 import edu.rosehulman.keinslc.rhithmu.Event;
-import edu.rosehulman.keinslc.rhithmu.MainActivity;
 import edu.rosehulman.keinslc.rhithmu.R;
 import edu.rosehulman.keinslc.rhithmu.Utils.EventUtils;
 
@@ -31,16 +29,13 @@ import edu.rosehulman.keinslc.rhithmu.Utils.EventUtils;
  * Created by keinslc on 1/15/2017.
  */
 
-public class AddEditDeleteEventDialogFragment extends DialogFragment {
+public class AddEditDeleteEventFragment extends Fragment {
     public static final String ARG_EVENT = "myEventArgument";
     public static final String ARG_KEY = "myEventKey";
     public static final String ARG_PATH = "userPath";
-    public static final int ADD_CODE = 21;
-    public static final int EDIT_CODE = 22;
-    public static final int DELETE_CODE = 23;
     public Calendar mStartTime;
     public Calendar mEndTime;
-    private MainActivity mActivity;
+    private OnEventEditedListener mOnEditFinishedListener;
     private Event mEvent;
 
     private TextView startDateTextView;
@@ -59,8 +54,12 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
     private EditText eventDescriptionEditText;
     private DatabaseReference mEventRef;
 
-    public static AddEditDeleteEventDialogFragment newInstance(Event event, String path) {
-        AddEditDeleteEventDialogFragment frag = new AddEditDeleteEventDialogFragment();
+    private Button mNuetralButton;
+    private Button mNegativeButton;
+    private Button mPositiveButton;
+
+    public static AddEditDeleteEventFragment newInstance(Event event, String path) {
+        AddEditDeleteEventFragment frag = new AddEditDeleteEventFragment();
         Bundle args = new Bundle();
         args.putParcelable(ARG_EVENT, event);
         args.putString(ARG_KEY, event.getKey());
@@ -70,18 +69,21 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
     }
 
     @Override
-    public void onAttach(Context activity) {
-        super.onAttach(activity);
-        mActivity = (MainActivity) activity;
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnEventEditedListener) {
+            mOnEditFinishedListener = (OnEventEditedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnEventEditedListener");
+        }
     }
 
-    @NonNull
+    @Nullable
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(getActivity()).inflate(
                 R.layout.dialog_fragment_add_edit_delete_event, null);
-        builder.setView(view);
 
         // The arguments cannot be null, new event must be passed in at least
         if (getArguments() != null) {
@@ -95,13 +97,16 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
             //mEvent = new Event();
         }
 
-
-
         // Buttons (TextViews)
         startDateTextView = (TextView) view.findViewById(R.id.startDateTextView);
         startTimeTextView = (TextView) view.findViewById(R.id.startTimeTextView);
         startTimePicker = (TimePicker) view.findViewById(R.id.startTimePicker);
         startDatePicker = (DatePicker) view.findViewById(R.id.startDatePicker);
+
+        //Buttons (Buttons)
+        mNuetralButton = (Button) view.findViewById(R.id.neutralButton);
+        mNegativeButton = (Button) view.findViewById(R.id.negativeButton);
+        mPositiveButton = (Button) view.findViewById(R.id.positiveButton);
 
         endDateTextView = (TextView) view.findViewById(R.id.endDateTextView);
         endTimeTextView = (TextView) view.findViewById(R.id.endTimeTextView);
@@ -129,54 +134,12 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
 
         /* Alert Dialog Buttons */
         // Do nothing
-        builder.setNegativeButton(android.R.string.cancel, null);
+        mNuetralButton = (Button) view.findViewById(R.id.neutralButton);
+        mNegativeButton = (Button) view.findViewById(R.id.negativeButton);
+        mPositiveButton = (Button) view.findViewById(R.id.positiveButton);
 
-        // Delete Event
-        builder.setNeutralButton(R.string.delete, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                mEventRef.child(mEvent.getKey()).removeValue();
-            }
-        });
-
-              /* Update the event with the new information. If the event was
-               new (as indicated by an ID of -1) tell main activity to
-               add the event. Otherwise tell main activity to update it's week view  */
-        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-                // TODO add sanity checks for date/time information figure out how to not close the dialog
-
-                mEvent.setStartTime(mStartTime);
-                mEvent.setEndTime(mEndTime);
-                mEvent.setName(eventNameEditText.getText().toString());
-                mEvent.setLocation(eventLocationEditText.getText().toString());
-                mEvent.setDescription(eventDescriptionEditText.getText().toString());
-                mEvent.setInvitees(eventInviteesEditText.getText().toString());
-                if (mEvent.getId() == -1) {
-                    mEvent.setId(EventUtils.getNewId());
-                    mEventRef.push().setValue(mEvent);
-                } else {
-                    mEventRef.child(mEvent.getKey()).setValue(mEvent);
-                }
-            }
-        });
-
-        //TODO: More Firebase based things
-        return builder.create();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mEventRef.removeEventListener((ChildEventListener) getActivity());
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mEventRef.addChildEventListener((ChildEventListener) getActivity());
+         //TODO: More Firebase based things
+        return view;
     }
 
     /**
@@ -201,6 +164,38 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
      * Assigns a listener to the date and time buttons to launch the fragments
      */
     private void setupButtonListeners() {
+        mNuetralButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mEventRef.child(mEvent.getKey()).removeValue();
+                mOnEditFinishedListener.onEventEditFinished();
+            }
+        });
+        mNegativeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOnEditFinishedListener.onEventEditFinished();
+            }
+        });
+        mPositiveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mEvent.setStartTime(mStartTime);
+                mEvent.setEndTime(mEndTime);
+                mEvent.setName(eventNameEditText.getText().toString());
+                mEvent.setLocation(eventLocationEditText.getText().toString());
+                mEvent.setDescription(eventDescriptionEditText.getText().toString());
+                mEvent.setInvitees(eventInviteesEditText.getText().toString());
+                if (mEvent.getId() == -1) {
+                    mEvent.setId(EventUtils.getNewId());
+                    mEventRef.push().setValue(mEvent);
+                } else {
+                    mEventRef.child(mEvent.getKey()).setValue(mEvent);
+                }
+                mOnEditFinishedListener.onEventEditFinished();
+            }
+        });
+
         startDateTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -289,5 +284,9 @@ public class AddEditDeleteEventDialogFragment extends DialogFragment {
                 updateDateTimeView();
             }
         });
+    }
+
+    public interface OnEventEditedListener{
+        void onEventEditFinished();
     }
 }
