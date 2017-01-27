@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
         dialog.setDialogSelectionListener(new DialogSelectionListener() {
             @Override
             public void onSelectedFilePaths(String[] files) {
+                // TODO: Need to make sure its a .ics file
+                // TODO: Move this elsewhere, ask the user if they have the calendar downloaded, else have them go get it
                 Log.d("MAIN ACTIVITY", "Files :" + Arrays.toString(files));
                 File file = new File(files[0]);
                 Scanner input = null;
