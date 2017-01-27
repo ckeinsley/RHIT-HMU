@@ -159,13 +159,13 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
                 nextMonth.set(lastMonth.get(Calendar.YEAR), lastMonth.get(Calendar.MONTH), lastMonth.get(Calendar.DAY_OF_MONTH), 0, 0);
                 //TODO: will cause funny bugs, woo;
                 if (newMonth == 1) {
-                    lastMonth.set(newYear - 1, 12, 29);
+                    lastMonth.set(newYear - 1, 12, 31);
                     nextMonth.set(newYear, 2, 1);
                 } else if (newMonth == 12) {
-                    lastMonth.set(newYear, 11, 29);
+                    lastMonth.set(newYear, 11, 30);
                     nextMonth.set(newYear + 1, 1, 1);
                 } else {
-                    lastMonth.set(newYear, newMonth - 1, 29);
+                    lastMonth.set(newYear, newMonth - 1, 30);
                     nextMonth.set(newYear, newMonth + 1, 1);
                 }
 
@@ -384,6 +384,7 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
         Event event = dataSnapshot.getValue(Event.class);
         event.setKey(dataSnapshot.getKey());
+        Log.d("WeekView", "OnChildAdded");
         mEvents.add(event);
         mWeekView.notifyDatasetChanged();
     }
