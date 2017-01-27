@@ -106,7 +106,6 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
         //EventUtils.createDefaultEvents(mEvents);
 
         //TODO: Implement complete firebase login procedure
-        //temp: hardcoded in Authentication, will be resolve in later milestone
         mFirebaseAuth = FirebaseAuth.getInstance();
         intializeFirebaseListeners();
         mFirebaseAuth.signInWithEmailAndPassword("default@rhit.edu", "password")
