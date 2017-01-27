@@ -9,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,10 +32,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
 import edu.rosehulman.keinslc.rhithmu.Event;
+import edu.rosehulman.keinslc.rhithmu.MainActivity;
 import edu.rosehulman.keinslc.rhithmu.R;
 
 /**
@@ -56,6 +59,7 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
     private OnCompleteListener mOnAuthCompleteListener;
     private OnEventSelectedListener mOnEventSelectedListener;
     private String mPath;
+    private MainActivity mActivity;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,6 +70,7 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        mActivity = (MainActivity) context;
         if (context instanceof OnEventSelectedListener) {
             mOnEventSelectedListener = (OnEventSelectedListener) context;
         } else {
@@ -110,9 +115,9 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
             public void onClick(View view) {
                 Event event = new Event();
                 mOnEventSelectedListener.onEventSelected(event, mPath);
-             }
+            }
         });
-
+        mWeekView.notifyDatasetChanged();
         return view;
     }
 
@@ -143,9 +148,31 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
         mWeekView.setMonthChangeListener(new MonthLoader.MonthChangeListener() {
             @Override
             public List<? extends WeekViewEvent> onMonthChange(int newYear, int newMonth) {
-                Log.d("MAIN", "Month Changed");
-                // TODO generate the events in the given month/year
-                return mEvents;
+                Log.d("MAIN", "Month Changed Year: " + newYear + " newMonth: " + newMonth);
+                int month = newMonth;
+                int year = newYear;
+                if (newMonth == 1) {
+                    month = 13;
+                    year = newYear - 1;
+                }
+                Calendar lastMonth = Calendar.getInstance();
+                lastMonth.set(year, month - 1, 1);
+                if (newMonth == 12) {
+                    month = 0;
+                    year = newYear + 1;
+                }
+                Calendar nextMonth = Calendar.getInstance();
+                nextMonth.set(year, month + 1, 1);
+                long lowEnd = lastMonth.getTimeInMillis();
+                long highEnd = nextMonth.getTimeInMillis();
+                List<Event> list = new ArrayList<Event>();
+                for (int i = 0; i < mEvents.size(); i++) {
+                    if (mEvents.get(i).getStartTimeInMilis() >= lowEnd && mEvents.get(i).getEndTimeInMilis() <= highEnd) {
+                        list.add(mEvents.get(i));
+                    }
+                }
+                Log.d("WEEK", Arrays.deepToString(list.toArray()));
+                return list;
             }
         });
 
@@ -175,7 +202,7 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 //TODO: Implement
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                if( user != null) {
+                if (user != null) {
                     mPath = "users/" + user.getUid();
                     mEventRef = FirebaseDatabase.getInstance().getReference().child(mPath);
                     mEventRef.addChildEventListener(WeekViewFragment.this);
@@ -201,15 +228,15 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
     }
 
     @Override
-    public void onPause(){
+    public void onPause() {
         super.onPause();
         mEventRef.removeEventListener(this);
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
-        if(mEventRef != null) {
+        if (mEventRef != null) {
             mEventRef.addChildEventListener(this);
         }
     }
@@ -243,6 +270,7 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
                 return true;
             case (R.id.action_importClasses):
                 Log.d("MAIN", "Import Classes Pressed");
+                mActivity.onRosefireLogin();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -272,6 +300,9 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
                 Calendar day = mWeekView.getFirstVisibleDay();
                 mWeekView.setNumberOfVisibleDays(1);
                 mWeekView.goToDate(day);
+                mWeekView.setColumnGap((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics()));
+                mWeekView.setTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
+                mWeekView.setEventTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
             }
         });
 
@@ -281,6 +312,9 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
                 Calendar day = mWeekView.getFirstVisibleDay();
                 mWeekView.setNumberOfVisibleDays(3);
                 mWeekView.goToDate(day);
+                mWeekView.setColumnGap((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics()));
+                mWeekView.setTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
+                mWeekView.setEventTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
             }
         });
 
@@ -290,6 +324,9 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
                 Calendar day = mWeekView.getFirstVisibleDay();
                 mWeekView.setNumberOfVisibleDays(7);
                 mWeekView.goToDate(day);
+                mWeekView.setColumnGap((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()));
+                mWeekView.setTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10, getResources().getDisplayMetrics()));
+                mWeekView.setEventTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10, getResources().getDisplayMetrics()));
             }
         });
     }
