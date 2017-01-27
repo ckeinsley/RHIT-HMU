@@ -210,8 +210,10 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     mPath = "users/" + user.getUid();
-                    mEventRef = FirebaseDatabase.getInstance().getReference().child(mPath);
-                    mEventRef.addChildEventListener(WeekViewFragment.this);
+                    if (mEventRef == null) {
+                        mEventRef = FirebaseDatabase.getInstance().getReference().child(mPath);
+                        mEventRef.addChildEventListener(WeekViewFragment.this);
+                    }
                 }
             }
         };
