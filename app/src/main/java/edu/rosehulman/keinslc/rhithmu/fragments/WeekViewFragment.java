@@ -386,7 +386,6 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
         Event event = dataSnapshot.getValue(Event.class);
         event.setKey(dataSnapshot.getKey());
-        Log.d("WeekView", "OnChildAdded");
         mEvents.add(event);
         mWeekView.notifyDatasetChanged();
     }
@@ -396,7 +395,7 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
         String keyChanged = dataSnapshot.getKey();
         Event changed = dataSnapshot.getValue(Event.class);
         for (Event event : mEvents) {
-            if (event.getKey().equals(changed.getKey())) {
+            if (event.getKey().equals(keyChanged)) {
                 event.setStartTime(changed.getStartTime());
                 event.setEndTime(changed.getEndTime());
                 event.setName(changed.getName());
