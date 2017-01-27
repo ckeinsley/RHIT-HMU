@@ -1,6 +1,7 @@
 package edu.rosehulman.keinslc.rhithmu.fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,6 +22,10 @@ import android.widget.Button;
 import com.alamkanak.weekview.MonthLoader;
 import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
+import com.github.angads25.filepicker.controller.DialogSelectionListener;
+import com.github.angads25.filepicker.model.DialogConfigs;
+import com.github.angads25.filepicker.model.DialogProperties;
+import com.github.angads25.filepicker.view.FilePickerDialog;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,8 +36,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -148,30 +153,31 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
         mWeekView.setMonthChangeListener(new MonthLoader.MonthChangeListener() {
             @Override
             public List<? extends WeekViewEvent> onMonthChange(int newYear, int newMonth) {
-                Log.d("MAIN", "Month Changed Year: " + newYear + " newMonth: " + newMonth);
-                int month = newMonth;
-                int year = newYear;
-                if (newMonth == 1) {
-                    month = 13;
-                    year = newYear - 1;
-                }
                 Calendar lastMonth = Calendar.getInstance();
-                lastMonth.set(year, month - 1, 1);
-                if (newMonth == 12) {
-                    month = 0;
-                    year = newYear + 1;
-                }
                 Calendar nextMonth = Calendar.getInstance();
-                nextMonth.set(year, month + 1, 1);
+                lastMonth.set(lastMonth.get(Calendar.YEAR), lastMonth.get(Calendar.MONTH), lastMonth.get(Calendar.DAY_OF_MONTH), 0, 0);
+                nextMonth.set(lastMonth.get(Calendar.YEAR), lastMonth.get(Calendar.MONTH), lastMonth.get(Calendar.DAY_OF_MONTH), 0, 0);
+                //TODO: will cause funny bugs, woo;
+                if (newMonth == 1) {
+                    lastMonth.set(newYear - 1, 12, 29);
+                    nextMonth.set(newYear, 2, 1);
+                } else if (newMonth == 12) {
+                    lastMonth.set(newYear, 11, 29);
+                    nextMonth.set(newYear + 1, 1, 1);
+                } else {
+                    lastMonth.set(newYear, newMonth - 1, 29);
+                    nextMonth.set(newYear, newMonth + 1, 1);
+                }
+
                 long lowEnd = lastMonth.getTimeInMillis();
                 long highEnd = nextMonth.getTimeInMillis();
-                List<Event> list = new ArrayList<Event>();
+
+                List<Event> list = new ArrayList<>();
                 for (int i = 0; i < mEvents.size(); i++) {
-                    if (mEvents.get(i).getStartTimeInMilis() >= lowEnd && mEvents.get(i).getEndTimeInMilis() <= highEnd) {
+                    if (lowEnd <= mEvents.get(i).getStartTimeInMilis() && mEvents.get(i).getEndTimeInMilis() <= highEnd) {
                         list.add(mEvents.get(i));
                     }
                 }
-                Log.d("WEEK", Arrays.deepToString(list.toArray()));
                 return list;
             }
         });
@@ -270,10 +276,52 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
                 return true;
             case (R.id.action_importClasses):
                 Log.d("MAIN", "Import Classes Pressed");
-                mActivity.onRosefireLogin();
+                AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+                builder.setTitle("Import Classes");
+                builder.setMessage("Do you have your Calendar File to Import?");
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        findScheduleFile();
+                    }
+                });
+                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mActivity.redirectToBannerWeb();
+                    }
+                });
+                builder.setNeutralButton(android.R.string.cancel, null);
+                builder.show();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void findScheduleFile() {
+        DialogProperties properties = new DialogProperties();
+        properties.selection_mode = DialogConfigs.SINGLE_MODE;
+        properties.selection_type = DialogConfigs.FILE_SELECT;
+        properties.root = new File(DialogConfigs.DEFAULT_DIR);
+        properties.error_dir = new File(DialogConfigs.DEFAULT_DIR);
+        properties.extensions = null;
+        FilePickerDialog dialog = new FilePickerDialog(getContext(), properties);
+        dialog.setTitle("Select a File");
+        dialog.setDialogSelectionListener(new DialogSelectionListener() {
+            @Override
+            public void onSelectedFilePaths(String[] files) {
+                //TODO: Sanity check the file
+                populateEventsList(files[0]);
+            }
+        });
+        dialog.show();
+    }
+
+    private void populateEventsList(String filepath) {
+        List<Event> parsedEvents = null; //TODO: get the events from the parsing
+        for (int i = 0; i < parsedEvents.size(); i++) {
+            mEventRef.push().setValue(parsedEvents.get(i));
+        }
     }
 
     /**
