@@ -1,10 +1,8 @@
 package edu.rosehulman.keinslc.rhithmu.fragments;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.RectF;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -22,21 +20,12 @@ import android.widget.Button;
 import com.alamkanak.weekview.MonthLoader;
 import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
-import com.github.angads25.filepicker.controller.DialogSelectionListener;
-import com.github.angads25.filepicker.model.DialogConfigs;
-import com.github.angads25.filepicker.model.DialogProperties;
-import com.github.angads25.filepicker.view.FilePickerDialog;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -58,10 +47,7 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
     private Button mThreeDayButton;
     private Button mWeekButton;
     private List<Event> mEvents;
-    private FirebaseAuth mFirebaseAuth;
     private DatabaseReference mEventRef;
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
-    private OnCompleteListener mOnAuthCompleteListener;
     private OnEventSelectedListener mOnEventSelectedListener;
     private String mPath;
     private MainActivity mActivity;
@@ -70,6 +56,13 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        mPath = getArguments().getString(MainActivity.FIREBASE_PATH);
+        if (mPath == null || mPath.isEmpty()) {
+            mEventRef = FirebaseDatabase.getInstance().getReference();
+        } else {
+            mEventRef = FirebaseDatabase.getInstance().getReference().child(mPath);
+        }
+        mEventRef.addChildEventListener(this);
     }
 
     @Override
@@ -105,11 +98,7 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
 
         //EventUtils.createDefaultEvents(mEvents);
 
-        //TODO: Implement complete firebase login procedure
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        intializeFirebaseListeners();
-        mFirebaseAuth.signInWithEmailAndPassword("default@rhit.edu", "password")
-                .addOnCompleteListener(mOnAuthCompleteListener);
+
         //mEventRef = FirebaseDatabase.getInstance().getReference().child(mPath);
 
 
@@ -198,46 +187,14 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
         });
     }
 
-    /**
-     * Sets up the FireBase Listeners
-     */
-    private void intializeFirebaseListeners() {
-        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                //TODO: Implement
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                if (user != null) {
-                    mPath = "users/" + user.getUid();
-                    if (mEventRef == null) {
-                        mEventRef = FirebaseDatabase.getInstance().getReference().child(mPath);
-                        mEventRef.addChildEventListener(WeekViewFragment.this);
-                    }
-                }
-            }
-        };
-        mOnAuthCompleteListener = new OnCompleteListener() {
-            @Override
-            public void onComplete(@NonNull Task task) {
-                if (!task.isSuccessful()) {
-                    //TODO: Implement a proper login failed catch
-                    Log.e("OnComplete", "login failed");
-                }
-            }
-        };
-    }
 
     /*LIFECYCLE METHODS FOR FIREBASE*/
     @Override
-    public void onStart() {
-        super.onStart();
-        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
-    }
-
-    @Override
     public void onPause() {
         super.onPause();
-        mEventRef.removeEventListener(this);
+        if (mEventRef != null) {
+            mEventRef.removeEventListener(this);
+        }
     }
 
     @Override
@@ -248,13 +205,6 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
         }
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (mAuthStateListener != null) {
-            mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
-        }
-    }
 
     /*OPTION MENU METHODS*/
     @Override
@@ -277,53 +227,19 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
                 return true;
             case (R.id.action_importClasses):
                 Log.d("MAIN", "Import Classes Pressed");
-                AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-                builder.setTitle("Import Classes");
-                builder.setMessage("Do you have your Calendar File to Import?");
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        findScheduleFile();
-                    }
-                });
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        mActivity.redirectToBannerWeb();
-                    }
-                });
-                builder.setNeutralButton(android.R.string.cancel, null);
-                builder.show();
+
+//                WebDriver driver = new HtmlUnitDriver();
+//                String url = "https://"  + "keinslc" + ":" + "Vallion11" + "@prodweb.rose-hulman.edu/regweb-cgi/reg-sched.pl?type=Ucal&termcode=201730&view=tgrid&id=keinslc";
+//                driver.get(url);
                 return true;
+            case (R.id.action_logout):
+                mActivity.logOut();
+                return true;
+
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void findScheduleFile() {
-        DialogProperties properties = new DialogProperties();
-        properties.selection_mode = DialogConfigs.SINGLE_MODE;
-        properties.selection_type = DialogConfigs.FILE_SELECT;
-        properties.root = new File(DialogConfigs.DEFAULT_DIR);
-        properties.error_dir = new File(DialogConfigs.DEFAULT_DIR);
-        properties.extensions = null;
-        FilePickerDialog dialog = new FilePickerDialog(getContext(), properties);
-        dialog.setTitle("Select a File");
-        dialog.setDialogSelectionListener(new DialogSelectionListener() {
-            @Override
-            public void onSelectedFilePaths(String[] files) {
-                //TODO: Sanity check the file
-                populateEventsList(files[0]);
-            }
-        });
-        dialog.show();
-    }
-
-    private void populateEventsList(String filepath) {
-        List<Event> parsedEvents = null; //TODO: get the events from the parsing
-        for (int i = 0; i < parsedEvents.size(); i++) {
-            mEventRef.push().setValue(parsedEvents.get(i));
-        }
-    }
 
     /**
      * Sets up the button listeners on the weekview and schedule button

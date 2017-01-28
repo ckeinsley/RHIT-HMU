@@ -21,4 +21,16 @@
     <string name="one_day_button_text">One Day</string>
     <string name="three_day_button_text">Three Day</string>
     <string name="week_button_text">Week</string>
+
+    <string name="prompt_email">Email</string>
+    <string name="incorrect_password">Password is incorrect</string>
+    <string name="field_required">This field is required</string>
+    <string name="invalid_password">Password is too short</string>
+    <string name="invalid_email">This email address is invalid</string>
+    <string name="login_error">Login Error!</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_logout">Log Out</string>
+    <string name="action_sign_in">Login</string>
+    <string name="action_sign_in_with_google">Sign in with Google</string>
+    <string name="login_with_rosefire">Login with Rosefire</string>
 </resources>
