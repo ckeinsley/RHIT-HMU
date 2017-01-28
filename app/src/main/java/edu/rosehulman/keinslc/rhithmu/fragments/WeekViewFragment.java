@@ -229,7 +229,6 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
                 Log.d("MAIN", "Import Classes Pressed");
 
 //                WebDriver driver = new HtmlUnitDriver();
-//                String url = "https://"  + "keinslc" + ":" + "Vallion11" + "@prodweb.rose-hulman.edu/regweb-cgi/reg-sched.pl?type=Ucal&termcode=201730&view=tgrid&id=keinslc";
 //                driver.get(url);
                 return true;
             case (R.id.action_logout):
