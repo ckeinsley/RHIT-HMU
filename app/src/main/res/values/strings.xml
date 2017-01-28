@@ -23,6 +23,7 @@
     <string name="week_button_text">Week</string>
 
     <string name="prompt_email">Email</string>
+    <string name="prompt_username">Username</string>
     <string name="incorrect_password">Password is incorrect</string>
     <string name="field_required">This field is required</string>
     <string name="invalid_password">Password is too short</string>

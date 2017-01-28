@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
     }
 
 
-    /*SETUP METHODS*/
+    /*----- SETUP METHODS -----*/
     private void initializeListeners() {
         // Called during log in or log out
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
 
     }
 
-    /*LOGIN/LOGOUT METHODS*/
+    /*----- LOGIN/LOGOUT METHODS -----*/
     public void logOut() {
         mFirebaseAuth.signOut();
     }
@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
     }
 
 
-    /*FRAGMENT SWAPS AND CALLBACKS*/
+    /*----- FRAGMENT SWAPS AND CALLBACKS -----*/
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == RC_ROSEFIRE_LOGIN) {
@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
         ft.commit();
     }
 
-    /*LIFECYCLE METHODS*/
+    /*----- LIFECYCLE METHODS -----*/
     @Override
     public void onStart() {
         super.onStart();

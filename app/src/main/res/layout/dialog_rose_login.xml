@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!--<Spinner-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:id="@+id/quarterSpinner"-->
+    <!--android:layout_height="wrap_content">-->
+    <!--<TextView-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:text="Winter"-->
+    <!--android:layout_height="wrap_content" />-->
+    <!--<TextView-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:text="Summer"-->
+    <!--android:layout_height="wrap_content" />-->
+    <!--</Spinner>-->
+
+    <EditText
+        android:id="@+id/usernameEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/prompt_username" />
+
+    <EditText
+        android:id="@+id/passwordEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/prompt_password"
+        android:inputType="textPassword" />
+
+</LinearLayout>

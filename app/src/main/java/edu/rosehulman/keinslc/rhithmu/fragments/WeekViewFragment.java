@@ -1,6 +1,7 @@
 package edu.rosehulman.keinslc.rhithmu.fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -16,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 
 import com.alamkanak.weekview.MonthLoader;
 import com.alamkanak.weekview.WeekView;
@@ -33,15 +35,17 @@ import java.util.List;
 import edu.rosehulman.keinslc.rhithmu.Event;
 import edu.rosehulman.keinslc.rhithmu.MainActivity;
 import edu.rosehulman.keinslc.rhithmu.R;
+import edu.rosehulman.keinslc.rhithmu.ScheduleDownloadTask;
 import edu.rosehulman.keinslc.rhithmu.Utils.Constants;
 
 import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.FIREBASE_PATH;
+import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.TAG_WEEK_VIEW;
 
 /**
  * Created by keinslc on 1/26/2017.
  */
 
-public class WeekViewFragment extends Fragment implements ChildEventListener {
+public class WeekViewFragment extends Fragment implements ChildEventListener, ScheduleDownloadTask.ScheduleConsumer {
 
     private WeekView mWeekView;
     private Button mMatchScheduleButton;
@@ -135,9 +139,7 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
@@ -147,9 +149,23 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
                 return true;
             case (R.id.action_importClasses):
                 Log.d(Constants.TAG_WEEK_VIEW, "Import Classes Pressed");
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                View view = LayoutInflater.from(getActivity()).inflate(getResources().getLayout(R.layout.dialog_rose_login), null);
+                final EditText username = (EditText) view.findViewById(R.id.usernameEditText);
+                final EditText password = (EditText) view.findViewById(R.id.passwordEditText);
+//                final Spinner spinner = (Spinner) view.findViewById(R.id.quarterSpinner);
 
-//                WebDriver driver = new HtmlUnitDriver();
-//                driver.get(url);
+                builder.setView(view);
+                builder.setTitle("Enter Rose Login Info");
+                builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        new ScheduleDownloadTask(username.getText().toString(), password.getText().toString(), WeekViewFragment.this).execute();
+                    }
+                });
+                builder.setNegativeButton(android.R.string.cancel, null);
+                builder.show();
+
                 return true;
             case (R.id.action_logout):
                 mActivity.logOut();
@@ -331,6 +347,11 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
     @Override
     public void onCancelled(DatabaseError databaseError) {
         Log.e(Constants.TAG_WEEK_VIEW, databaseError.toString());
+    }
+
+    @Override
+    public void onScheduleLoaded(String schedule) {
+        Log.d(TAG_WEEK_VIEW, schedule);
     }
 
     public interface OnEventSelectedListener {
