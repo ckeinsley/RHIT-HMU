@@ -15,7 +15,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -23,20 +22,23 @@ import java.util.Calendar;
 
 import edu.rosehulman.keinslc.rhithmu.Event;
 import edu.rosehulman.keinslc.rhithmu.R;
+import edu.rosehulman.keinslc.rhithmu.Utils.Constants;
 import edu.rosehulman.keinslc.rhithmu.Utils.EventUtils;
+
+import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.ARG_EVENT;
+import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.ARG_KEY;
+import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.ARG_PATH;
 
 /**
  * Created by keinslc on 1/15/2017.
  */
 
 public class AddEditDeleteEventFragment extends Fragment {
-    public static final String ARG_EVENT = "myEventArgument";
-    public static final String ARG_KEY = "myEventKey";
-    public static final String ARG_PATH = "userPath";
     public Calendar mStartTime;
     public Calendar mEndTime;
     private OnEventEditedListener mOnEditFinishedListener;
     private Event mEvent;
+    private String mPath;
 
     private TextView startDateTextView;
     private TextView startTimeTextView;
@@ -88,12 +90,12 @@ public class AddEditDeleteEventFragment extends Fragment {
         // The arguments cannot be null, new event must be passed in at least
         if (getArguments() != null) {
             String key = getArguments().getString(ARG_KEY);
-            String path = getArguments().getString(ARG_PATH);
+            mPath = getArguments().getString(ARG_PATH);
             mEvent = getArguments().getParcelable(ARG_EVENT);
-            mEventRef = FirebaseDatabase.getInstance().getReference().child(path);
+            mEventRef = FirebaseDatabase.getInstance().getReference().child(mPath);
         } else {
             // Should never happen
-            Log.e("CRUD Fragment", "no arguments");
+            Log.e(Constants.TAG_EDIT_FRAG, "no arguments");
             //mEvent = new Event();
         }
 
@@ -138,7 +140,6 @@ public class AddEditDeleteEventFragment extends Fragment {
         mNegativeButton = (Button) view.findViewById(R.id.negativeButton);
         mPositiveButton = (Button) view.findViewById(R.id.positiveButton);
 
-         //TODO: More Firebase based things
         return view;
     }
 
@@ -168,13 +169,13 @@ public class AddEditDeleteEventFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 mEventRef.child(mEvent.getKey()).removeValue();
-                mOnEditFinishedListener.onEventEditFinished();
+                mOnEditFinishedListener.onEventEditFinished(mPath);
             }
         });
         mNegativeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mOnEditFinishedListener.onEventEditFinished();
+                mOnEditFinishedListener.onEventEditFinished(mPath);
             }
         });
         mPositiveButton.setOnClickListener(new View.OnClickListener() {
@@ -192,7 +193,7 @@ public class AddEditDeleteEventFragment extends Fragment {
                 } else {
                     mEventRef.child(mEvent.getKey()).setValue(mEvent);
                 }
-                mOnEditFinishedListener.onEventEditFinished();
+                mOnEditFinishedListener.onEventEditFinished(mPath);
             }
         });
 
@@ -287,6 +288,6 @@ public class AddEditDeleteEventFragment extends Fragment {
     }
 
     public interface OnEventEditedListener{
-        void onEventEditFinished();
+        void onEventEditFinished(String path);
     }
 }

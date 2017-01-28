@@ -12,25 +12,33 @@ import android.transition.Slide;
 import android.util.Log;
 import android.view.Gravity;
 
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 
+import edu.rosehulman.keinslc.rhithmu.Utils.Constants;
 import edu.rosehulman.keinslc.rhithmu.fragments.AddEditDeleteEventFragment;
 import edu.rosehulman.keinslc.rhithmu.fragments.LoginFragment;
 import edu.rosehulman.keinslc.rhithmu.fragments.WeekViewFragment;
 import edu.rosehulman.rosefire.Rosefire;
 import edu.rosehulman.rosefire.RosefireResult;
 
-//public class MainActivity extends AppCompatActivity implements ChildEventListener {
+import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.FIREBASE_PATH;
+import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.RC_GOOGLE_LOGIN;
+import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.RC_ROSEFIRE_LOGIN;
+
 public class MainActivity extends AppCompatActivity implements WeekViewFragment.OnEventSelectedListener, AddEditDeleteEventFragment.OnEventEditedListener, LoginFragment.OnLoginListener, GoogleApiClient.OnConnectionFailedListener {
 
-    public static final String FIREBASE_PATH = "myFirebasePath";
-    private static final int RC_ROSEFIRE_LOGIN = 34;
     private FirebaseAuth mFirebaseAuth;
     private OnCompleteListener mOnCompleteListener;
     private GoogleApiClient mGoogleApiClient;
@@ -45,20 +53,17 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
         mFirebaseAuth = FirebaseAuth.getInstance();
         initializeListeners();
         setupGoogleSignIn();
-
     }
 
-    public void logOut() {
-        mFirebaseAuth.signOut();
-    }
 
+    /*SETUP METHODS*/
     private void initializeListeners() {
         // Called during log in or log out
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                Log.d("MAIN", "Current User: " + user);
+                Log.d(Constants.TAG_MAIN_ACTIVITY, "Current User: " + user);
                 if (user != null) {
                     switchToWeekViewFragment("users/" + user.getUid());
                 } else {
@@ -71,43 +76,64 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
             @Override
             public void onComplete(@NonNull Task task) {
                 if (!task.isSuccessful()) {
-                    //TODO: Implement a proper login failed catch
-                    Log.e("OnComplete", "login failed");
+                    showLoginError("Authentication failed");
                 }
             }
         };
     }
 
     private void setupGoogleSignIn() {
-        // Configure Google Sign In
-//        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-//                .requestIdToken(getString(R.string.default_web_client_id))
-//                .requestEmail()
-//                .build();
-//        // Build a GoogleApiClient with access to GoogleSignIn.API and the options above.
-//        mGoogleApiClient = new GoogleApiClient.Builder(this)
-//                .enableAutoManage(this, this)
-//                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-//                .build();
+//         Configure Google Sign In
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        // Build a GoogleApiClient with access to GoogleSignIn.API and the options above.
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
 
+    }
+
+    /*LOGIN/LOGOUT METHODS*/
+    public void logOut() {
+        mFirebaseAuth.signOut();
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        // Woops
+    }
+
+    private void showLoginError(String message) {
+        LoginFragment loginFragment = (LoginFragment) getSupportFragmentManager().findFragmentByTag("Login");
+        loginFragment.onLoginError(message);
     }
 
     @Override
     public void onLogin(String email, String password) {
-        mFirebaseAuth.signInWithEmailAndPassword("default@rhit.edu", "password")
+        mFirebaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(mOnCompleteListener);
     }
 
     @Override
     public void onGoogleLogin() {
-
+        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+        startActivityForResult(signInIntent, RC_GOOGLE_LOGIN);
     }
 
     @Override
     public void onRosefireLogin() {
-        // Really shouldn't be here
         Intent signInIntent = Rosefire.getSignInIntent(this, getString(R.string.rosefire_key));
         startActivityForResult(signInIntent, RC_ROSEFIRE_LOGIN);
+    }
+
+    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+        Log.d(Constants.TAG_MAIN_ACTIVITY, "firebaseAuthWithGoogle:" + acct.getId());
+        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+        mFirebaseAuth.signInWithCredential(credential)
+                .addOnCompleteListener(mOnCompleteListener);
     }
 
 
@@ -120,6 +146,17 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
                 // The user cancelled login
             }
             //Success
+        }
+        if (requestCode == RC_GOOGLE_LOGIN) {
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            if (result.isSuccess()) {
+                // Google Sign In was successful, authenticate with Firebase
+                GoogleSignInAccount account = result.getSignInAccount();
+                firebaseAuthWithGoogle(account);
+            } else {
+                // Google Sign In failed, update UI appropriately
+                showLoginError("Google auth failed");
+            }
         }
     }
 
@@ -134,7 +171,6 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
         Fragment weekViewFragment = new WeekViewFragment();
         Bundle args = new Bundle();
         args.putString(FIREBASE_PATH, path);
-        Log.d("Passing in path:", path);
         weekViewFragment.setArguments(args);
         ft.replace(R.id.fragment_container, weekViewFragment, "Passwords");
         ft.commit();
@@ -158,13 +194,17 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
     }
 
     @Override
-    public void onEventEditFinished() {
+    public void onEventEditFinished(String path) {
         FragmentManager fm = getSupportFragmentManager();
         for (int i = 0; i < fm.getBackStackEntryCount(); i++) {
             fm.popBackStackImmediate();
         }
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.fragment_container, new WeekViewFragment());
+        Fragment frag = new WeekViewFragment();
+        Bundle args = new Bundle();
+        args.putString(FIREBASE_PATH, path);
+        frag.setArguments(args);
+        ft.replace(R.id.fragment_container, frag);
         ft.commit();
     }
 
@@ -181,11 +221,6 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
         if (mAuthListener != null) {
             mFirebaseAuth.removeAuthStateListener(mAuthListener);
         }
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        // Woops
     }
 }
 

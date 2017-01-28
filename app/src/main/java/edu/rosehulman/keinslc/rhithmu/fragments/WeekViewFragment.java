@@ -33,6 +33,9 @@ import java.util.List;
 import edu.rosehulman.keinslc.rhithmu.Event;
 import edu.rosehulman.keinslc.rhithmu.MainActivity;
 import edu.rosehulman.keinslc.rhithmu.R;
+import edu.rosehulman.keinslc.rhithmu.Utils.Constants;
+
+import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.FIREBASE_PATH;
 
 /**
  * Created by keinslc on 1/26/2017.
@@ -56,13 +59,16 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        mPath = getArguments().getString(MainActivity.FIREBASE_PATH);
+
+        mPath = getArguments().getString(FIREBASE_PATH);
+
         if (mPath == null || mPath.isEmpty()) {
             mEventRef = FirebaseDatabase.getInstance().getReference();
+            mEventRef.addChildEventListener(this);
         } else {
             mEventRef = FirebaseDatabase.getInstance().getReference().child(mPath);
+            mEventRef.addChildEventListener(this);
         }
-        mEventRef.addChildEventListener(this);
     }
 
     @Override
@@ -96,12 +102,6 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
         //Fill mEvents
         mEvents = new ArrayList<>();
 
-        //EventUtils.createDefaultEvents(mEvents);
-
-
-        //mEventRef = FirebaseDatabase.getInstance().getReference().child(mPath);
-
-
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,6 +112,105 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
         });
         mWeekView.notifyDatasetChanged();
         return view;
+    }
+
+
+    /*-----LIFECYCLE METHODS FOR FIREBASE-----*/
+    /* Don't need on resume since oncreate is called to recreate the fragment */
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mEventRef != null) {
+            mEventRef.removeEventListener(this);
+        }
+    }
+
+
+    /*-----OPTION MENU METHODS-----*/
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.menu_main, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        switch (id) {
+            case (R.id.action_settings):
+                Log.d(Constants.TAG_WEEK_VIEW, "Settings Pressed");
+                return true;
+            case (R.id.action_importClasses):
+                Log.d(Constants.TAG_WEEK_VIEW, "Import Classes Pressed");
+
+//                WebDriver driver = new HtmlUnitDriver();
+//                driver.get(url);
+                return true;
+            case (R.id.action_logout):
+                mActivity.logOut();
+                return true;
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    /*----- SETUP METHODS -----*/
+    private void setButtonListeners() {
+        mMatchScheduleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO: Launch a bluetooth connect fragment
+                Log.d(Constants.TAG_WEEK_VIEW, "Match Schedules Clicked");
+            }
+        });
+
+        mTodayButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mWeekView.goToToday();
+            }
+        });
+        mOneDayButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar day = mWeekView.getFirstVisibleDay();
+                mWeekView.setNumberOfVisibleDays(1);
+                mWeekView.goToDate(day);
+                mWeekView.setColumnGap((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics()));
+                mWeekView.setTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
+                mWeekView.setEventTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
+            }
+        });
+
+        mThreeDayButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar day = mWeekView.getFirstVisibleDay();
+                mWeekView.setNumberOfVisibleDays(3);
+                mWeekView.goToDate(day);
+                mWeekView.setColumnGap((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics()));
+                mWeekView.setTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
+                mWeekView.setEventTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
+            }
+        });
+
+        mWeekButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar day = mWeekView.getFirstVisibleDay();
+                mWeekView.setNumberOfVisibleDays(7);
+                mWeekView.goToDate(day);
+                mWeekView.setColumnGap((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()));
+                mWeekView.setTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10, getResources().getDisplayMetrics()));
+                mWeekView.setEventTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10, getResources().getDisplayMetrics()));
+            }
+        });
     }
 
     /**
@@ -175,127 +274,17 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
             @Override
             public void onEventLongPress(WeekViewEvent event, RectF eventRect) {
                 Event event1 = (Event) event; //kinda sketch
-                Log.d("MAIN", "On Event Clicked Long Press");
-                Event mEvent = null;
                 for (int i = 0; i < mEvents.size(); i++) {
                     if (mEvents.get(i).getKey().equals(event1.getKey())) {
-                        mEvent = mEvents.get(i);
+                        event1 = mEvents.get(i);
                     }
                 }
-                mOnEventSelectedListener.onEventSelected(mEvent, mPath);
+                mOnEventSelectedListener.onEventSelected(event1, mPath);
             }
         });
     }
 
-
-    /*LIFECYCLE METHODS FOR FIREBASE*/
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (mEventRef != null) {
-            mEventRef.removeEventListener(this);
-        }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (mEventRef != null) {
-            mEventRef.addChildEventListener(this);
-        }
-    }
-
-
-    /*OPTION MENU METHODS*/
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        inflater.inflate(R.menu.menu_main, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        switch (id) {
-            case (R.id.action_settings):
-                Log.d("MAIN", "Settings Pressed");
-                return true;
-            case (R.id.action_importClasses):
-                Log.d("MAIN", "Import Classes Pressed");
-
-//                WebDriver driver = new HtmlUnitDriver();
-//                driver.get(url);
-                return true;
-            case (R.id.action_logout):
-                mActivity.logOut();
-                return true;
-
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-
-    /**
-     * Sets up the button listeners on the weekview and schedule button
-     */
-    private void setButtonListeners() {
-        mMatchScheduleButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO: Launch a bluetooth connect fragment
-                Log.d("MAIN", "Match Schedules Clicked");
-            }
-        });
-
-        mTodayButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mWeekView.goToToday();
-            }
-        });
-        mOneDayButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Calendar day = mWeekView.getFirstVisibleDay();
-                mWeekView.setNumberOfVisibleDays(1);
-                mWeekView.goToDate(day);
-                mWeekView.setColumnGap((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics()));
-                mWeekView.setTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
-                mWeekView.setEventTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
-            }
-        });
-
-        mThreeDayButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Calendar day = mWeekView.getFirstVisibleDay();
-                mWeekView.setNumberOfVisibleDays(3);
-                mWeekView.goToDate(day);
-                mWeekView.setColumnGap((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics()));
-                mWeekView.setTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
-                mWeekView.setEventTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()));
-            }
-        });
-
-        mWeekButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Calendar day = mWeekView.getFirstVisibleDay();
-                mWeekView.setNumberOfVisibleDays(7);
-                mWeekView.goToDate(day);
-                mWeekView.setColumnGap((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()));
-                mWeekView.setTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10, getResources().getDisplayMetrics()));
-                mWeekView.setEventTextSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10, getResources().getDisplayMetrics()));
-            }
-        });
-    }
-
-    /*FIREBASE CHILD LISTENER METHODS*/
+    /*-----FIREBASE CHILD LISTENER METHODS-----*/
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
         Event event = dataSnapshot.getValue(Event.class);
@@ -341,10 +330,9 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
 
     @Override
     public void onCancelled(DatabaseError databaseError) {
-        Log.e("WeekViewMan", "onCancelled called");
+        Log.e(Constants.TAG_WEEK_VIEW, databaseError.toString());
     }
 
-    //TODO: Move auth into main activity and remove the passing of the Path
     public interface OnEventSelectedListener {
         void onEventSelected(Event event, String userPath);
     }
