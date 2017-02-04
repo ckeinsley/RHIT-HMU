@@ -208,6 +208,7 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
         ft.commit();
     }
 
+
     /*----- LIFECYCLE METHODS -----*/
     @Override
     public void onStart() {

@@ -34,4 +34,5 @@
     <string name="action_sign_in">Login</string>
     <string name="action_sign_in_with_google">Sign in with Google</string>
     <string name="login_with_rosefire">Login with Rosefire</string>
+    <string name="no">No</string>
 </resources>

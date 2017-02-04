@@ -2,7 +2,9 @@ package edu.rosehulman.keinslc.rhithmu.fragments;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.RectF;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -17,17 +19,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.Toast;
 
 import com.alamkanak.weekview.MonthLoader;
 import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
+import com.github.angads25.filepicker.controller.DialogSelectionListener;
+import com.github.angads25.filepicker.model.DialogConfigs;
+import com.github.angads25.filepicker.model.DialogProperties;
+import com.github.angads25.filepicker.view.FilePickerDialog;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -35,17 +43,16 @@ import java.util.List;
 import edu.rosehulman.keinslc.rhithmu.Event;
 import edu.rosehulman.keinslc.rhithmu.MainActivity;
 import edu.rosehulman.keinslc.rhithmu.R;
-import edu.rosehulman.keinslc.rhithmu.ScheduleDownloadTask;
 import edu.rosehulman.keinslc.rhithmu.Utils.Constants;
+import edu.rosehulman.keinslc.rhithmu.Utils.EventUtils;
 
 import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.FIREBASE_PATH;
-import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.TAG_WEEK_VIEW;
 
 /**
  * Created by keinslc on 1/26/2017.
  */
 
-public class WeekViewFragment extends Fragment implements ChildEventListener, ScheduleDownloadTask.ScheduleConsumer {
+public class WeekViewFragment extends Fragment implements ChildEventListener {
 
     private WeekView mWeekView;
     private Button mMatchScheduleButton;
@@ -65,14 +72,6 @@ public class WeekViewFragment extends Fragment implements ChildEventListener, Sc
         setHasOptionsMenu(true);
 
         mPath = getArguments().getString(FIREBASE_PATH);
-
-        if (mPath == null || mPath.isEmpty()) {
-            mEventRef = FirebaseDatabase.getInstance().getReference();
-            mEventRef.addChildEventListener(this);
-        } else {
-            mEventRef = FirebaseDatabase.getInstance().getReference().child(mPath);
-            mEventRef.addChildEventListener(this);
-        }
     }
 
     @Override
@@ -129,6 +128,17 @@ public class WeekViewFragment extends Fragment implements ChildEventListener, Sc
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mPath == null || mPath.isEmpty()) {
+            mEventRef = FirebaseDatabase.getInstance().getReference();
+            mEventRef.addChildEventListener(this);
+        } else {
+            mEventRef = FirebaseDatabase.getInstance().getReference().child(mPath);
+            mEventRef.addChildEventListener(this);
+        }
+    }
 
     /*-----OPTION MENU METHODS-----*/
     @Override
@@ -150,20 +160,22 @@ public class WeekViewFragment extends Fragment implements ChildEventListener, Sc
             case (R.id.action_importClasses):
                 Log.d(Constants.TAG_WEEK_VIEW, "Import Classes Pressed");
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                View view = LayoutInflater.from(getActivity()).inflate(getResources().getLayout(R.layout.dialog_rose_login), null);
-                final EditText username = (EditText) view.findViewById(R.id.usernameEditText);
-                final EditText password = (EditText) view.findViewById(R.id.passwordEditText);
-//                final Spinner spinner = (Spinner) view.findViewById(R.id.quarterSpinner);
-
-                builder.setView(view);
-                builder.setTitle("Enter Rose Login Info");
-                builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                builder.setTitle("Do you have your calendar file to import?");
+                builder.setMessage("Hitting no will launch a browser to download it.\nHitting yes will prompt you to select it.\n" +
+                        "It is most likely in your Download folder.");
+                builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        new ScheduleDownloadTask(username.getText().toString(), password.getText().toString(), WeekViewFragment.this).execute();
+                        launchFilePicker();
                     }
                 });
-                builder.setNegativeButton(android.R.string.cancel, null);
+                builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        redirectToBannerWeb();
+                    }
+                });
+                builder.setNeutralButton(android.R.string.cancel, null);
                 builder.show();
 
                 return true;
@@ -173,6 +185,48 @@ public class WeekViewFragment extends Fragment implements ChildEventListener, Sc
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void redirectToBannerWeb() {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse("https://prodweb.rose-hulman.edu/regweb-cgi/reg-sched.pl"));
+        startActivity(browserIntent);
+    }
+
+    private void launchFilePicker() {
+        DialogProperties properties = new DialogProperties();
+        properties.selection_mode = DialogConfigs.SINGLE_MODE;
+        properties.selection_type = DialogConfigs.FILE_SELECT;
+        properties.root = new File(DialogConfigs.DEFAULT_DIR);
+        properties.error_dir = new File(DialogConfigs.DEFAULT_DIR);
+        properties.extensions = null;
+        final FilePickerDialog dialog = new FilePickerDialog(getActivity(), properties);
+        dialog.setTitle("Select a File");
+        dialog.setDialogSelectionListener(new DialogSelectionListener() {
+            @Override
+            public void onSelectedFilePaths(String[] files) {
+                String filePath = files[0];
+                if (!filePath.contains("ics")) {
+                    Toast.makeText(getContext(), "Should be a .ics file.", Toast.LENGTH_LONG);
+                    launchFilePicker();
+                } else {
+                    try {
+                        addBulkEvents(EventUtils.parseScheduleLookupEvent(filePath));
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        });
+        dialog.show();
+    }
+
+    private void addBulkEvents(List<Event> eventList) {
+        mEventRef = FirebaseDatabase.getInstance().getReference().child(mPath);
+        for (Event event : eventList) {
+            mEventRef.push().setValue(event);
+        }
     }
 
 
@@ -347,11 +401,6 @@ public class WeekViewFragment extends Fragment implements ChildEventListener, Sc
     @Override
     public void onCancelled(DatabaseError databaseError) {
         Log.e(Constants.TAG_WEEK_VIEW, databaseError.toString());
-    }
-
-    @Override
-    public void onScheduleLoaded(String schedule) {
-        Log.d(TAG_WEEK_VIEW, schedule);
     }
 
     public interface OnEventSelectedListener {

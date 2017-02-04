@@ -1,5 +1,7 @@
 package edu.rosehulman.keinslc.rhithmu.Utils;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -65,12 +67,11 @@ public class EventUtils {
     /**
      * Parses Schedule Lookup page calendars
      *
-     * @param toParse
-     * @return
      */
-    public static List<Event> parseScheduleLookupEvent(String toParse) {
+    public static List<Event> parseScheduleLookupEvent(String pathToParse) throws FileNotFoundException {
         List<Event> events = new ArrayList<>();
-        Scanner scanner = new Scanner(toParse);
+        File file = new File(pathToParse);
+        Scanner scanner = new Scanner(file);
         if(!scanner.hasNextLine()){
             scanner.close();
             return events;
