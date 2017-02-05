@@ -17,7 +17,7 @@ import edu.rosehulman.keinslc.rhithmu.Utils.SyncCalendarService;
  */
 
 public class BluetoothActivity extends Activity {
-
+//TODO Finish
     // Message types sent from the BluetoothChatService Handler
     public static final int MESSAGE_STATE_CHANGE = 1;
     public static final int MESSAGE_READ = 2;
