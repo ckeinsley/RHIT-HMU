@@ -7,7 +7,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Toast;
 
 import edu.rosehulman.keinslc.rhithmu.Utils.SyncCalendarService;
@@ -17,7 +22,6 @@ import edu.rosehulman.keinslc.rhithmu.Utils.SyncCalendarService;
  */
 
 public class BluetoothActivity extends Activity {
-//TODO Finish
     // Message types sent from the BluetoothChatService Handler
     public static final int MESSAGE_STATE_CHANGE = 1;
     public static final int MESSAGE_READ = 2;
@@ -44,55 +48,7 @@ public class BluetoothActivity extends Activity {
     // Array adapter for the conversation thread
     private ArrayAdapter<String> mConversationArrayAdapter;
     // The Handler that gets information back from the BluetoothChatService
-    private final Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MESSAGE_STATE_CHANGE:
-                    switch (msg.arg1) {
-                        case SyncCalendarService.STATE_CONNECTED:
-//                            mTitle.setText(R.string.title_connected_to);
-//                            mTitle.append(mConnectedDeviceName);
-                            mConversationArrayAdapter.clear();
-                            break;
-                        case SyncCalendarService.STATE_CONNECTING:
-//                            mTitle.setText(R.string.title_connecting);
-                            break;
-                        case SyncCalendarService.STATE_LISTEN:
-                        case SyncCalendarService.STATE_NONE:
-//                            mTitle.setText(R.string.title_not_connected);
-                            break;
-                    }
-                    break;
-                case MESSAGE_WRITE:
-                    byte[] writeBuf = (byte[]) msg.obj;
-                    // construct a string from the buffer
-                    String writeMessage = new String(writeBuf);
-                    mConversationArrayAdapter.add("Me:  " + writeMessage);
-                    break;
-                case MESSAGE_READ:
-                    byte[] readBuf = (byte[]) msg.obj;
-                    // construct a string from the valid bytes in the buffer
-                    String readMessage = new String(readBuf, 0, msg.arg1);
-                    if (readMessage.length() > 0) {
-                        mConversationArrayAdapter.add(mConnectedDeviceName + ":  " + readMessage);
-                    }
-                    break;
-                case MESSAGE_DEVICE_NAME:
-                    // save the connected device's name
-                    mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
-                    Toast.makeText(getApplicationContext(), "Connected to "
-                            + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
-                    break;
-                case MESSAGE_TOAST:
-                    //if (!msg.getData().getString(TOAST).contains("Unable to connect device")) {
-                    Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST),
-                            Toast.LENGTH_SHORT).show();
-                    //}
-                    break;
-            }
-        }
-    };
+
     // String buffer for outgoing messages
     private StringBuffer mOutStringBuffer;
     // Local Bluetooth adapter
@@ -104,14 +60,24 @@ public class BluetoothActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setContentView(R.layout.activity_bluetooth);
         // Grab the local bluetooth adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         if (mBluetoothAdapter == null) {
             Toast.makeText(this, "Bluetooth is not Availiable", Toast.LENGTH_LONG).show();
             finish();
+            return;
         }
+        Button button = (Button) findViewById(R.id.button_scan);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ensureDiscoverable();
+                Intent serverIntent = new Intent(BluetoothActivity.this, DeviceListActivity.class);
+                startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+            }
+        });
     }
 
     @Override
@@ -193,4 +159,55 @@ public class BluetoothActivity extends Activity {
                 }
         }
     }
+
+
+    private final Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MESSAGE_STATE_CHANGE:
+                    switch (msg.arg1) {
+                        case SyncCalendarService.STATE_CONNECTED:
+//                            mTitle.setText(R.string.title_connected_to);
+//                            mTitle.append(mConnectedDeviceName);
+                            mConversationArrayAdapter.clear();
+                            break;
+                        case SyncCalendarService.STATE_CONNECTING:
+//                            mTitle.setText(R.string.title_connecting);
+                            break;
+                        case SyncCalendarService.STATE_LISTEN:
+                        case SyncCalendarService.STATE_NONE:
+//                            mTitle.setText(R.string.title_not_connected);
+                            break;
+                    }
+                    break;
+                case MESSAGE_WRITE:
+                    byte[] writeBuf = (byte[]) msg.obj;
+                    // construct a string from the buffer
+                    String writeMessage = new String(writeBuf);
+                    mConversationArrayAdapter.add("Me:  " + writeMessage);
+                    break;
+                case MESSAGE_READ:
+                    byte[] readBuf = (byte[]) msg.obj;
+                    // construct a string from the valid bytes in the buffer
+                    String readMessage = new String(readBuf, 0, msg.arg1);
+                    if (readMessage.length() > 0) {
+                        mConversationArrayAdapter.add(mConnectedDeviceName + ":  " + readMessage);
+                    }
+                    break;
+                case MESSAGE_DEVICE_NAME:
+                    // save the connected device's name
+                    mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
+                    Toast.makeText(getApplicationContext(), "Connected to "
+                            + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+                    break;
+                case MESSAGE_TOAST:
+                    //if (!msg.getData().getString(TOAST).contains("Unable to connect device")) {
+                    Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST),
+                            Toast.LENGTH_SHORT).show();
+                    //}
+                    break;
+            }
+        }
+    };
 }

@@ -23,4 +23,5 @@ public class Constants {
     public static final String TAG_CONNECTED_THREAD = "CONNECTED_THREAD";
     public static final int REQUEST_CONNECT_DEVICE = 61;
     public static final int REQUEST_ENABLE_BT = 62;
+    public static final int REQUEST_BLUETOOTH_CONNECT = 1001;
 }

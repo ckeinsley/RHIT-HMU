@@ -36,7 +36,7 @@ import edu.rosehulman.rosefire.RosefireResult;
 import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.FIREBASE_PATH;
 import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.RC_GOOGLE_LOGIN;
 import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.RC_ROSEFIRE_LOGIN;
-import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.REQUEST_CONNECT_DEVICE;
+import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.REQUEST_BLUETOOTH_CONNECT;
 
 public class MainActivity extends AppCompatActivity implements WeekViewFragment.OnEventSelectedListener, AddEditDeleteEventFragment.OnEventEditedListener, LoginFragment.OnLoginListener, GoogleApiClient.OnConnectionFailedListener {
 
@@ -161,12 +161,9 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
         }
     }
 
-    public void launchDeviceList(){
-        //TODO Rename
-        Intent intent = new Intent(this, BluetoothActivity.class);
-        startActivityForResult(intent, 1001);
-//        Intent serverIntent = new Intent(this, DeviceListActivity.class);
-//        startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
+    public void launchDeviceList() {
+        Intent intent = new Intent(MainActivity.this, BluetoothActivity.class);
+        startActivityForResult(intent, REQUEST_BLUETOOTH_CONNECT);
     }
 
     private void switchToLoginFragment() {
