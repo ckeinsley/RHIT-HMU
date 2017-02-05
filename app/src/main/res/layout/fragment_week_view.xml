@@ -13,6 +13,7 @@
 
         <Button
             android:id="@+id/matchSyncSchedule"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/match_schedule_button_text" />
