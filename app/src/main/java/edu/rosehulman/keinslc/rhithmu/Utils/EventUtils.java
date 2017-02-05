@@ -133,7 +133,7 @@ public class EventUtils {
         //Log.d("parseICSString","input: " + date + " value: " + value);
         calendar.set(
                 Integer.parseInt(value.substring(0,4)),
-                Integer.parseInt(value.substring(4,6)) - 1,
+                Integer.parseInt(value.substring(4,6)) - 1, //I'll have you know I spent a long time debugging this
                 Integer.parseInt(value.substring(6,8)),
                 Integer.parseInt(value.substring(9,11)),
                 Integer.parseInt(value.substring(11,13)),

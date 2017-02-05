@@ -26,7 +26,6 @@ import edu.rosehulman.keinslc.rhithmu.Utils.Constants;
 import edu.rosehulman.keinslc.rhithmu.Utils.EventUtils;
 
 import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.ARG_EVENT;
-import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.ARG_KEY;
 import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.ARG_PATH;
 
 /**
@@ -64,7 +63,7 @@ public class AddEditDeleteEventFragment extends Fragment {
         AddEditDeleteEventFragment frag = new AddEditDeleteEventFragment();
         Bundle args = new Bundle();
         args.putParcelable(ARG_EVENT, event);
-        args.putString(ARG_KEY, event.getKey());
+        //args.putString(ARG_KEY, event.getKey());
         args.putString(ARG_PATH, path);
         frag.setArguments(args);
         return frag;
@@ -89,7 +88,7 @@ public class AddEditDeleteEventFragment extends Fragment {
 
         // The arguments cannot be null, new event must be passed in at least
         if (getArguments() != null) {
-            String key = getArguments().getString(ARG_KEY);
+            //String key = getArguments().getString(ARG_KEY);
             mPath = getArguments().getString(ARG_PATH);
             mEvent = getArguments().getParcelable(ARG_EVENT);
             mEventRef = FirebaseDatabase.getInstance().getReference().child(mPath);

@@ -7,7 +7,7 @@ package edu.rosehulman.keinslc.rhithmu.Utils;
 public class Constants {
     /*Used for transition from weekView to AddEditDeleteEventFragment*/
     public static final String ARG_EVENT = "myEventArgument";
-    public static final String ARG_KEY = "myEventKey";
+    //public static final String ARG_KEY = "myEventKey";
     public static final String ARG_PATH = "userPath";
     /*Used for transition from login fragment to weekView*/
     public static final String FIREBASE_PATH = "myFirebasePath";
