@@ -1,5 +1,7 @@
 package edu.rosehulman.keinslc.rhithmu.Utils;
 
+import android.util.Log;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -79,23 +81,32 @@ public class EventUtils {
         scanner.nextLine();
         Event e;
         String active;
+        String t1;
+        String t2;
         while(scanner.hasNextLine() && scanner.nextLine().equals("BEGIN:VEVENT")){
             e = new Event();
             active = scanner.nextLine();
             // I use substring for speed since we know exactly what the preceding string is
-            active = active.substring(9);
+            active = active.substring(8);
             // summmary is both name and description
             e.setName(active);
             e.setDescription(active);
             active = scanner.nextLine();
             // prof is invitee
-            e.setInvitees(active.substring(38));
+            e.setInvitees(active.substring(37));
             active = scanner.nextLine();
             // location is location
-            e.setLocation(active.substring(10));
+            e.setLocation(active.substring(9));
             // parse calendars
-            e.setStartTime(parseICSDate(scanner.nextLine()));
-            e.setEndTime(parseICSDate(scanner.nextLine()));
+            t1 = scanner.nextLine();
+            t2 = scanner.nextLine();
+            if(t2.charAt(0) == 'T'){
+                e.setStartTime(parseICSDate(t1+t2));
+                e.setEndTime(parseICSDate(scanner.nextLine() + scanner.nextLine()));
+            } else {
+                e.setStartTime(parseICSDate(t1));
+                e.setEndTime(parseICSDate(t2));
+            }
             // add our new event
             events.add(e);
             //throw away unused lines
@@ -119,14 +130,19 @@ public class EventUtils {
         Calendar calendar = Calendar.getInstance();
         //DTSTART and DTEND are different lengths so no hardcoded substring lengths
         String value = date.split(":")[1];
+        //Log.d("parseICSString","input: " + date + " value: " + value);
         calendar.set(
                 Integer.parseInt(value.substring(0,4)),
-                Integer.parseInt(value.substring(4,6)),
+                Integer.parseInt(value.substring(4,6)) - 1,
                 Integer.parseInt(value.substring(6,8)),
                 Integer.parseInt(value.substring(9,11)),
                 Integer.parseInt(value.substring(11,13)),
                 Integer.parseInt(value.substring(13,15)));
 
+//        Log.d("value", value.substring(0,4) + " " + value.substring(4,6) + " " + value.substring(6,8) + " " + value.substring(9,11) + " " + value.substring(11,13) + " " +
+//                value.substring(13,15));
+//        Log.d("Calendar", calendar.get(Calendar.YEAR) + " " + calendar.get(Calendar.MONTH) + " " + calendar.get(Calendar.DATE) + " " + calendar.get(Calendar.HOUR) + " " + calendar.get(Calendar.MINUTE) + " " + calendar.get(Calendar.SECOND));
+//        Log.d("Time millis", "" + calendar.getTimeInMillis());
         return calendar;
     }
 
