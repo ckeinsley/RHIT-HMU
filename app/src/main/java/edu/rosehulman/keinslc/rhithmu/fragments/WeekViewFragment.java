@@ -235,8 +235,8 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
         mMatchScheduleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: Launch a bluetooth connect fragment
                 Log.d(Constants.TAG_WEEK_VIEW, "Match Schedules Clicked");
+                mActivity.launchDeviceList();
             }
         });
 
