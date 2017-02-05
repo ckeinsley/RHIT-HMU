@@ -2,9 +2,9 @@
     <string name="app_name">RHIT HMU</string>
     <string name="action_settings">Settings</string>
     <string name="action_import_classes">Import Classes</string>
-    <string name="startDateButtonFirstHalf">"Start Day: \n\t"</string>
-    <string name="startTimeFirstHalf">"Start Time: \n\t"</string>
-    <string name="endTimeFirstHalf">"End Time: \n\t"</string>
+    <string name="startDateButtonFirstHalf">"Start Day: \n"</string>
+    <string name="startTimeFirstHalf">"Start Time: \n"</string>
+    <string name="endTimeFirstHalf">"End Time: \n"</string>
     <string name="nameTextViewLabel">Name</string>
     <string name="nameEditTextHint">Input Event Name</string>
     <string name="locationTextViewLabel">Location</string>
