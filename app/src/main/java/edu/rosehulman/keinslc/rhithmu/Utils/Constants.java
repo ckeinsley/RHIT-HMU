@@ -18,10 +18,14 @@ public class Constants {
     public static final String TAG_MAIN_ACTIVITY = "MAIN_ACTIVITY";
     public static final String TAG_EDIT_FRAG = "EDIT_FRAG";
     /*Bluetooth*/
-    public static final String TAG_ACCEPT_THREAD = "ACCEPT_THREAD";
-    public static final String TAG_CONNECT_THREAD = "CONNECT_THREAD";
-    public static final String TAG_CONNECTED_THREAD = "CONNECTED_THREAD";
-    public static final int REQUEST_CONNECT_DEVICE = 61;
-    public static final int REQUEST_ENABLE_BT = 62;
-    public static final int REQUEST_BLUETOOTH_CONNECT = 1001;
+    // Message types sent from the SyncCalendarService Handler
+    public static final int MESSAGE_STATE_CHANGE = 1;
+    public static final int MESSAGE_READ = 2;
+    public static final int MESSAGE_WRITE = 3;
+    public static final int MESSAGE_DEVICE_NAME = 4;
+    public static final int MESSAGE_TOAST = 5;
+
+    // Key names received from the SyncCalendarService Handler
+    public static final String DEVICE_NAME = "device_name";
+    public static final String TOAST = "toast";
 }
