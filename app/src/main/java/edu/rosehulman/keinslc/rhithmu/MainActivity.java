@@ -158,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
                 showLoginError("Google auth failed");
             }
         }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     public void launchDeviceList() {

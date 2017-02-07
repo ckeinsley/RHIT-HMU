@@ -62,11 +62,6 @@ public class BluetoothFragment extends Fragment {
         @Override
         public void handleMessage(Message msg) {
             Activity activity = getActivity();
-            Log.d("HELLOO WOORLDL ", "************* IM A HANDLER **********************");
-            if(activity == null){
-                Log.d("HELLOO WOORLDL ", "************* IM A NULL ACTIVITY **********************");
-            }
-            //TODO Fix this crap
             switch (msg.what) {
                 case Constants.MESSAGE_STATE_CHANGE:
                     switch (msg.arg1) {
@@ -224,6 +219,7 @@ public class BluetoothFragment extends Fragment {
                 if (null != view) {
                     TextView textView = (TextView) view.findViewById(R.id.edit_text_out);
                     String message = textView.getText().toString();
+                    //TODO: Generate JSON String and pass it over
                     sendMessage(message);
                 }
             }
@@ -333,6 +329,7 @@ public class BluetoothFragment extends Fragment {
                     getActivity().finish();
                 }
         }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     /**
