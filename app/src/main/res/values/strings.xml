@@ -57,4 +57,18 @@
     <string name="secure_connect">Connect a device - Secure</string>
     <string name="insecure_connect">Connect a device - Insecure</string>
     <string name="discoverable">Make discoverable</string>
+
+    <!-- Recurring options-->
+    <!-- according to Chris spinners are evil. I really hope hes wrong -->
+    <string-array name="YesNo">
+        <item>No</item>
+        <item>Yes</item>
+    </string-array>
+    <string name="how_often">How often?</string>
+    <string-array name="Frequency">
+        <item>Daily</item>
+        <item>Weekly</item>
+        <item>Monthly</item>
+    </string-array>
+    <string name="until">Until: </string>
 </resources>

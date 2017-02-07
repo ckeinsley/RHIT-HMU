@@ -9,9 +9,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -35,6 +37,7 @@ import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.ARG_PATH;
 public class AddEditDeleteEventFragment extends Fragment {
     public Calendar mStartTime;
     public Calendar mEndTime;
+    public Calendar mRecurringTime;
     private OnEventEditedListener mOnEditFinishedListener;
     private Event mEvent;
     private String mPath;
@@ -55,9 +58,14 @@ public class AddEditDeleteEventFragment extends Fragment {
     private EditText eventDescriptionEditText;
     private DatabaseReference mEventRef;
 
-    private Button mNuetralButton;
+    private Button mNeutralButton;
     private Button mNegativeButton;
     private Button mPositiveButton;
+
+    private Spinner RecurringYesNoSpinner;
+    private Spinner RecurringFrequencySpinner;
+    private TextView RecurringEndDateTextView;
+    private DatePicker RecurringDatePicker;
 
     public static AddEditDeleteEventFragment newInstance(Event event, String path) {
         AddEditDeleteEventFragment frag = new AddEditDeleteEventFragment();
@@ -105,7 +113,7 @@ public class AddEditDeleteEventFragment extends Fragment {
         startDatePicker = (DatePicker) view.findViewById(R.id.startDatePicker);
 
         //Buttons (Buttons)
-        mNuetralButton = (Button) view.findViewById(R.id.neutralButton);
+        mNeutralButton = (Button) view.findViewById(R.id.neutralButton);
         mNegativeButton = (Button) view.findViewById(R.id.negativeButton);
         mPositiveButton = (Button) view.findViewById(R.id.positiveButton);
 
@@ -120,6 +128,11 @@ public class AddEditDeleteEventFragment extends Fragment {
         eventInviteesEditText = (EditText) view.findViewById(R.id.event_invitees_editText);
         eventDescriptionEditText = (EditText) view.findViewById(R.id.event_description_editText);
 
+        //Recurring
+        RecurringYesNoSpinner = (Spinner) view.findViewById(R.id.recurring_spinner_yn);
+        RecurringFrequencySpinner = (Spinner) view.findViewById(R.id.recurring_spinner_frequency);
+        RecurringDatePicker = (DatePicker) view.findViewById(R.id.recurring_datepicker);
+        RecurringEndDateTextView = (TextView) view.findViewById(R.id.recurring_end_date_textview);
 
         // Event ID -1 means its a new event
         if (mEvent.getId() == -1) {
@@ -130,12 +143,14 @@ public class AddEditDeleteEventFragment extends Fragment {
             mStartTime = (Calendar) mEvent.getStartTime().clone();
             mEndTime = (Calendar) mEvent.getEndTime().clone();
         }
+        //recurring gives no cares
+        mRecurringTime = Calendar.getInstance();
         updateView();
         setupButtonListeners();
 
         /* Alert Dialog Buttons */
         // Do nothing
-        mNuetralButton = (Button) view.findViewById(R.id.neutralButton);
+        mNeutralButton = (Button) view.findViewById(R.id.neutralButton);
         mNegativeButton = (Button) view.findViewById(R.id.negativeButton);
         mPositiveButton = (Button) view.findViewById(R.id.positiveButton);
 
@@ -158,6 +173,7 @@ public class AddEditDeleteEventFragment extends Fragment {
         startTimeTextView.setText(getString(R.string.startTimeFirstHalf) + EventUtils.getTimeStringFromCalendar(mStartTime));
         endDateTextView.setText(getString(R.string.endDateButtonFirstHalf) + EventUtils.getDateStringFromCalendar(mEndTime));
         endTimeTextView.setText(getString(R.string.endTimeFirstHalf) + EventUtils.getTimeStringFromCalendar(mEndTime));
+        RecurringEndDateTextView.setText(getString(R.string.until) + EventUtils.getDateStringFromCalendar(mRecurringTime));
     }
 
     /**
@@ -165,7 +181,7 @@ public class AddEditDeleteEventFragment extends Fragment {
      */
     private void setupButtonListeners() {
         //TODO: FIX button appearance, chris thinks this should be in the XML but it makes me cringe
-        mNuetralButton.setOnClickListener(new View.OnClickListener() {
+        mNeutralButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mEventRef.child(mEvent.getKey()).removeValue();
@@ -187,11 +203,17 @@ public class AddEditDeleteEventFragment extends Fragment {
                 mEvent.setLocation(eventLocationEditText.getText().toString());
                 mEvent.setDescription(eventDescriptionEditText.getText().toString());
                 mEvent.setInvitees(eventInviteesEditText.getText().toString());
-                if (mEvent.getId() == -1) {
-                    mEvent.setId(EventUtils.getNewId());
-                    mEventRef.push().setValue(mEvent);
+//                if (mEvent.getId() == -1) {
+//                    mEvent.setId(EventUtils.getNewId());
+//                    mEventRef.push().setValue(mEvent);
+//                } else {
+//                    mEventRef.child(mEvent.getKey()).setValue(mEvent);
+//                }
+                //so this might qualify as cheating the system but who cares
+                if(RecurringFrequencySpinner.getVisibility() == View.GONE) {
+                    addEvent();
                 } else {
-                    mEventRef.child(mEvent.getKey()).setValue(mEvent);
+                    addRecurringEvents();
                 }
                 mOnEditFinishedListener.onEventEditFinished(mPath);
             }
@@ -285,6 +307,98 @@ public class AddEditDeleteEventFragment extends Fragment {
                 updateDateTimeView();
             }
         });
+        RecurringYesNoSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                String option = adapterView.getItemAtPosition(position).toString();
+                if(option.equals("No")) {
+                    RecurringFrequencySpinner.setVisibility(View.GONE);
+                    RecurringEndDateTextView.setVisibility(View.GONE);
+                } else {
+                    RecurringFrequencySpinner.setVisibility(View.VISIBLE);
+                    RecurringEndDateTextView.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                //default == No
+                RecurringDatePicker.setVisibility(View.GONE);
+                RecurringFrequencySpinner.setVisibility(View.GONE);
+                RecurringEndDateTextView.setVisibility(View.GONE);
+            }
+        });
+        RecurringEndDateTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (RecurringDatePicker.getVisibility() == View.VISIBLE) {
+                    RecurringDatePicker.setVisibility(View.GONE);
+                    mRecurringTime.set(RecurringDatePicker.getYear(), RecurringDatePicker.getMonth(), RecurringDatePicker.getDayOfMonth());
+                } else {
+                    RecurringDatePicker.updateDate(mRecurringTime.get(Calendar.YEAR), mRecurringTime.get(Calendar.MONTH), mRecurringTime.get(Calendar.DAY_OF_MONTH));
+                    RecurringDatePicker.setVisibility(View.VISIBLE);
+                }
+                updateDateTimeView();
+            }
+        });
+    }
+
+    //If recurring is true call this and let the madness begin
+    private void addRecurringEvents(){
+        long factor = 0;
+        Calendar recurStart = (Calendar) mStartTime.clone();
+        Calendar recurEnd = (Calendar) mEndTime.clone();
+        //We add a day in case someone gives us the exact stop day
+        long max = mRecurringTime.getTimeInMillis() + EventUtils.ONE_DAY_IN_MILLIS;
+        String option = RecurringFrequencySpinner.getSelectedItem().toString();
+        if (option.equals("Daily")){
+            factor = EventUtils.ONE_DAY_IN_MILLIS;
+        } else if (option.equals("Weekly")) {
+            factor = EventUtils.ONE_WEEK_IN_MILLIS;
+        } else {
+            //guess we have to do this the hard way
+            Log.d("Monthly", "in monthly");
+            while (recurStart.getTimeInMillis() < max){
+                mEvent.setStartTime(recurStart);
+                mEvent.setEndTime(recurEnd);
+                addEvent();
+                //On the off chance that some madman split their event over two months, we're ready
+                //side note: if this causes an error tell IntelliJ to piss off because the code works
+                if(recurStart.get(Calendar.MONTH) == Calendar.DECEMBER){
+                    recurStart.set(Calendar.MONTH, Calendar.JANUARY);
+                } else {
+                    recurStart.set(Calendar.MONTH, recurStart.get(Calendar.MONTH) + 1);
+                }
+                if(recurEnd.get(Calendar.MONTH) == Calendar.DECEMBER){
+                    recurEnd.set(Calendar.MONTH, Calendar.JANUARY);
+                } else {
+                    recurEnd.set(Calendar.MONTH, recurEnd.get(Calendar.MONTH) + 1);
+                }
+            }
+            return;
+        }
+        while(recurStart.getTimeInMillis() < max){
+            mEvent.setStartTime(recurStart);
+            mEvent.setEndTime(recurEnd);
+            addEvent();
+            recurStart.setTimeInMillis(recurStart.getTimeInMillis() + factor);
+            recurEnd.setTimeInMillis(recurEnd.getTimeInMillis() + factor);
+        }
+
+    }
+
+    //export some work and isolate the firebase connecting
+    private void addEvent(){
+//        mEvent.setStartTimeInMilis(startTime);
+//        mEvent.setEndTimeInMilis(endTime);
+        if (mEvent.getId() == -1) {
+            mEvent.setId(EventUtils.getNewId());
+            mEventRef.push().setValue(mEvent);
+        } else {
+            mEventRef.child(mEvent.getKey()).setValue(mEvent);
+        }
+        //if we don't do this recurring will not work
+        mEvent.setId(-1);
     }
 
     public interface OnEventEditedListener{

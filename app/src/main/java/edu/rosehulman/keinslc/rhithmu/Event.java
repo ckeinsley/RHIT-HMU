@@ -111,7 +111,7 @@ public class Event extends WeekViewEvent implements Parcelable {
 
     @Override
     public void setEndTime(Calendar endTime) {
-        super.setEndTime(endTime);
+        super.setEndTime((Calendar) endTime.clone());
         mEndTimeInMilis = endTime.getTimeInMillis();
     }
 
@@ -123,7 +123,7 @@ public class Event extends WeekViewEvent implements Parcelable {
 
     @Override
     public void setStartTime(Calendar startTime) {
-        super.setStartTime(startTime);
+        super.setStartTime((Calendar) startTime.clone());
         mStartTimeInMilis = startTime.getTimeInMillis();
     }
 

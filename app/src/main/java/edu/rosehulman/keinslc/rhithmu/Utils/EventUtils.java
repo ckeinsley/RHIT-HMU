@@ -20,6 +20,8 @@ public class EventUtils {
     private static final String[] daysOfWeek = {"Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"};
     private static final String[] monthsOfYear = {"Jan", "Feb", "Mar", "Apr", "Mat", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"};
     private static final long ONE_HOUR_IN_MILLIS=3600000;
+    public static final long ONE_DAY_IN_MILLIS=24*ONE_HOUR_IN_MILLIS;
+    public static final long ONE_WEEK_IN_MILLIS=7*ONE_DAY_IN_MILLIS;
 
     public static void createDefaultEvents(List<Event> events) {
         Calendar startTime = Calendar.getInstance();
