@@ -92,7 +92,7 @@ public class AddEditDeleteEventFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(getActivity()).inflate(
-                R.layout.dialog_fragment_add_edit_delete_event, null);
+                R.layout.fragment_add_edit_delete_event, null);
 
         // The arguments cannot be null, new event must be passed in at least
         if (getArguments() != null) {
