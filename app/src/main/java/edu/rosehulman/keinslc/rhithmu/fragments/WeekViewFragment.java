@@ -157,15 +157,15 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
 
         //noinspection SimplifiableIfStatement
         switch (id) {
-            case (R.id.action_settings):
-                Log.d(Constants.TAG_WEEK_VIEW, "Settings Pressed");
-                return true;
+//            case (R.id.action_settings):
+//                Log.d(Constants.TAG_WEEK_VIEW, "Settings Pressed");
+//                return true;
             case (R.id.action_importClasses):
                 Log.d(Constants.TAG_WEEK_VIEW, "Import Classes Pressed");
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle("Do you have your calendar file to import?");
-                builder.setMessage("Hitting no will launch a browser to download it.\nHitting yes will prompt you to select it.\n" +
-                        "It is most likely in your Download folder.");
+                builder.setMessage("Hitting no will launch a browser to download it.\nYes will prompt you to select it.\n" +
+                        "(It is most likely in your Download folder.)");
                 builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

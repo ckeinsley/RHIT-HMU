@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
                     SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.putString(PREF_MPATH, "users/" + user.getUid());
-                    editor.commit();
+                    editor.apply();
                     switchToWeekViewFragment();
                 } else {
                     switchToLoginFragment();

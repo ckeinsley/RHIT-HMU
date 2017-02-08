@@ -135,11 +135,18 @@ public class AddEditDeleteEventFragment extends Fragment {
         RecurringDatePicker = (DatePicker) view.findViewById(R.id.recurring_datepicker);
         RecurringEndDateTextView = (TextView) view.findViewById(R.id.recurring_end_date_textview);
 
+        // Do nothing
+        mNeutralButton = (Button) view.findViewById(R.id.neutralButton);
+        mNegativeButton = (Button) view.findViewById(R.id.negativeButton);
+        mPositiveButton = (Button) view.findViewById(R.id.positiveButton);
+
         // Event ID -1 means its a new event
         if (mEvent.getId() == -1) {
             mStartTime = Calendar.getInstance();
             mEndTime = Calendar.getInstance();
             mEndTime.setTimeInMillis(mEndTime.getTimeInMillis() + 3600000);
+            mNeutralButton.setVisibility(View.GONE);
+
         } else {
             mStartTime = (Calendar) mEvent.getStartTime().clone();
             mEndTime = (Calendar) mEvent.getEndTime().clone();
@@ -149,11 +156,6 @@ public class AddEditDeleteEventFragment extends Fragment {
         updateView();
         setupButtonListeners();
 
-        /* Alert Dialog Buttons */
-        // Do nothing
-        mNeutralButton = (Button) view.findViewById(R.id.neutralButton);
-        mNegativeButton = (Button) view.findViewById(R.id.negativeButton);
-        mPositiveButton = (Button) view.findViewById(R.id.positiveButton);
 
         return view;
     }

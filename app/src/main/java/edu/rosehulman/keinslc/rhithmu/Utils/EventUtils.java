@@ -1,14 +1,14 @@
 package edu.rosehulman.keinslc.rhithmu.Utils;
 
-import android.util.Log;
-
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -46,6 +46,21 @@ public class EventUtils {
         return jsonArray.toString();
     }
 
+    public static List<Event> getEventListfromJSON(String jsonString) {
+        // Lol why are there nulls, IDK
+        jsonString = jsonString.replace("null", "");
+        // Some GSON Magic
+        Type type = new TypeToken<List<Event>>() {
+        }.getType();
+        List<Event> inpList = new Gson().fromJson(jsonString, type);
+        //Magical Debugging Junk
+//        for (int i = 0; i < inpList.size(); i++) {
+//            Event x = inpList.get(i);
+//            Log.d("EVENT : ", x.toString());
+//        }
+        return inpList;
+    }
+
     // Hilariously, days are 1 based and months are 0 based... Good job java calendar
     public static String getDateStringFromCalendar(Calendar calendar) {
         String output = "";
@@ -81,7 +96,7 @@ public class EventUtils {
 
     public static Long getNewId() {
         //TODO: Guarantee that no two IDs are the same
-        return Long.valueOf(17);
+        return 17L;
     }
 
     /**
@@ -125,6 +140,7 @@ public class EventUtils {
                 e.setEndTime(parseICSDate(t2));
             }
             // add our new event
+            e.setId(Long.valueOf(15));
             events.add(e);
             //throw away unused lines
             scanner.nextLine();
@@ -167,7 +183,6 @@ public class EventUtils {
      * Creates 2 weeks worth of hour events and then eliminates events where conflicts occur
      * hypothetical efficiency is O(N) where N = number of events
      *
-     * @return
      */
     public static List<Event> match(List<List<Event>> events) {
         List<Event> Conflicts = new ArrayList<>();
@@ -196,10 +211,7 @@ public class EventUtils {
      * @return
      */
     public static boolean isConflict(Event e1, Event e2) {
-        if (e1.getEndTimeInMilis() <= e2.getStartTimeInMilis() || e2.getEndTimeInMilis() <= e1.getStartTimeInMilis()) {
-            return false;
-        }
-        return true;
+        return !(e1.getEndTimeInMilis() <= e2.getStartTimeInMilis() || e2.getEndTimeInMilis() <= e1.getStartTimeInMilis());
 
 //        if(e1.getStartTimeInMilis() < e2.getStartTimeInMilis()){
 //            if(e1.getEndTimeInMilis() <= e2.getStartTimeInMilis()){

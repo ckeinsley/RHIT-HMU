@@ -23,7 +23,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,6 +34,8 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 import edu.rosehulman.keinslc.rhithmu.Utils.Constants;
@@ -43,6 +44,7 @@ import edu.rosehulman.keinslc.rhithmu.Utils.SyncCalendarService;
 
 import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.PREFS_NAME;
 import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.PREF_MPATH;
+import static edu.rosehulman.keinslc.rhithmu.Utils.SyncCalendarService.STATE_CONNECTED;
 
 /**
  * This fragment controls Bluetooth to communicate with other devices.
@@ -54,14 +56,18 @@ public class BluetoothFragment extends Fragment {
     private static final int REQUEST_CONNECT_DEVICE_SECURE = 1;
     private static final int REQUEST_CONNECT_DEVICE_INSECURE = 2;
     private static final int REQUEST_ENABLE_BT = 3;
+    private static long TWO_WEEKS_IN_MILIS = 1209600000;
     private String mPath;
+    private String recievedEvents;
+    private boolean hasSentEvents;
+    private boolean hasRecievedEvents;
+
     private List<Event> mList = new ArrayList<>();
 
     // Layout Views
     private ListView mConversationView;
-    private EditText mOutEditText;
     private Button mSendButton;
-
+    private Button mMatchButton;
     /**
      * Name of the connected device
      */
@@ -78,10 +84,14 @@ public class BluetoothFragment extends Fragment {
         @Override
         public void handleMessage(Message msg) {
             Activity activity = getActivity();
+            // If someone mashes the back very quickly, this is nulled
+            if (activity == null) {
+                return;
+            }
             switch (msg.what) {
                 case Constants.MESSAGE_STATE_CHANGE:
                     switch (msg.arg1) {
-                        case SyncCalendarService.STATE_CONNECTED:
+                        case STATE_CONNECTED:
                             setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
                             mConversationArrayAdapter.clear();
                             break;
@@ -98,13 +108,16 @@ public class BluetoothFragment extends Fragment {
                     byte[] writeBuf = (byte[]) msg.obj;
                     // construct a string from the buffer
                     String writeMessage = new String(writeBuf);
-                    mConversationArrayAdapter.add("Me:  " + writeMessage);
+                    hasSentEvents = true;
+                    mConversationArrayAdapter.add("Me:  " + "Sent Events");
                     break;
                 case Constants.MESSAGE_READ:
                     byte[] readBuf = (byte[]) msg.obj;
                     // construct a string from the valid bytes in the buffer
                     String readMessage = new String(readBuf, 0, msg.arg1);
-                    mConversationArrayAdapter.add(mConnectedDeviceName + ":  " + readMessage);
+                    recievedEvents += readMessage;
+                    setHasReceivedEvents();
+                    mConversationArrayAdapter.add("Received Event from " + mConnectedDeviceName);
                     break;
                 case Constants.MESSAGE_DEVICE_NAME:
                     // save the connected device's name
@@ -162,7 +175,11 @@ public class BluetoothFragment extends Fragment {
         }
         SharedPreferences prefs = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         mPath = prefs.getString(PREF_MPATH, "NoUid");
-        Query mQuery = FirebaseDatabase.getInstance().getReference().child(mPath).orderByChild("startTimeInMilis");
+        //Only Query Firebase for the next two weeks of stuff
+        Calendar cal = Calendar.getInstance();
+        long l = cal.getTimeInMillis();
+        l += TWO_WEEKS_IN_MILIS;
+        Query mQuery = FirebaseDatabase.getInstance().getReference().child(mPath).orderByChild("startTimeInMilis").endAt(l);
         mQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -177,6 +194,14 @@ public class BluetoothFragment extends Fragment {
             }
         });
 
+    }
+
+    /*------------------------------------------Recieved Events Setter------------------------------------------------*/
+    private void setHasReceivedEvents() {
+        hasRecievedEvents = true;
+        if (hasSentEvents == true) {
+            mMatchButton.setClickable(true);
+        }
     }
 
     @Override
@@ -199,7 +224,16 @@ public class BluetoothFragment extends Fragment {
         if (mChatService != null) {
             mChatService.stop();
         }
-}
+    }
+
+    /*Helps prevent crashing when going backwards since the fragment is not destroyed*/
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mChatService != null) {
+            mChatService.stop();
+        }
+    }
 
     @Override
     public void onResume() {
@@ -226,8 +260,8 @@ public class BluetoothFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         mConversationView = (ListView) view.findViewById(R.id.in);
-        mOutEditText = (EditText) view.findViewById(R.id.edit_text_out);
         mSendButton = (Button) view.findViewById(R.id.button_send);
+        mMatchButton = (Button) view.findViewById(R.id.button_match);
     }
 
     /**
@@ -242,7 +276,6 @@ public class BluetoothFragment extends Fragment {
         mConversationView.setAdapter(mConversationArrayAdapter);
 
         // Initialize the compose field with a listener for the return key
-        mOutEditText.setOnEditorActionListener(mWriteListener);
 
         // Initialize the send button with a listener that for click events
         mSendButton.setOnClickListener(new View.OnClickListener() {
@@ -250,13 +283,27 @@ public class BluetoothFragment extends Fragment {
                 // Send a message using content of the edit text widget
                 View view = getView();
                 if (null != view) {
-                    TextView textView = (TextView) view.findViewById(R.id.edit_text_out);
-                    Toast.makeText(getActivity(), "Working", Toast.LENGTH_SHORT).show();
-                    //TODO: This will hang the app so we need to make sure they can only press it once
-                    mSendButton.setClickable(false);
+                    if (mChatService.getState() == STATE_CONNECTED) {
+                        Toast.makeText(getActivity(), "Working", Toast.LENGTH_SHORT).show();
+                        mSendButton.setClickable(false);
+                    }
                     String message = EventUtils.getJSONifiedString(mList);
                     sendMessage(message);
                 }
+            }
+        });
+
+        mMatchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mChatService.stop();
+                // Get events recieved
+                List<List<Event>> eventListList = new ArrayList<List<Event>>();
+                eventListList.add(EventUtils.getEventListfromJSON(recievedEvents));
+                eventListList.add(mList);
+                //TODO something with this inforomation
+                List<Event> matched = EventUtils.match(eventListList);
+                Log.d("WOAH NELLY", Arrays.deepToString(matched.toArray()));
             }
         });
 
@@ -286,7 +333,7 @@ public class BluetoothFragment extends Fragment {
      */
     private void sendMessage(String message) {
         // Check that we're actually connected before trying anything
-        if (mChatService.getState() != SyncCalendarService.STATE_CONNECTED) {
+        if (mChatService.getState() != STATE_CONNECTED) {
             Toast.makeText(getActivity(), R.string.not_connected, Toast.LENGTH_SHORT).show();
             return;
         }
@@ -299,7 +346,6 @@ public class BluetoothFragment extends Fragment {
 
             // Reset out string buffer to zero and clear the edit text field
             mOutStringBuffer.setLength(0);
-            mOutEditText.setText(mOutStringBuffer);
         }
     }
 
