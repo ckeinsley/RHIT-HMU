@@ -2,6 +2,11 @@ package edu.rosehulman.keinslc.rhithmu.Utils;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -19,15 +24,26 @@ public class EventUtils {
 
     private static final String[] daysOfWeek = {"Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"};
     private static final String[] monthsOfYear = {"Jan", "Feb", "Mar", "Apr", "Mat", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"};
-    private static final long ONE_HOUR_IN_MILLIS=3600000;
-    public static final long ONE_DAY_IN_MILLIS=24*ONE_HOUR_IN_MILLIS;
-    public static final long ONE_WEEK_IN_MILLIS=7*ONE_DAY_IN_MILLIS;
+    private static final long ONE_HOUR_IN_MILLIS = 3600000;
+    public static final long ONE_DAY_IN_MILLIS = 24 * ONE_HOUR_IN_MILLIS;
+    public static final long ONE_WEEK_IN_MILLIS = 7 * ONE_DAY_IN_MILLIS;
 
     public static void createDefaultEvents(List<Event> events) {
         Calendar startTime = Calendar.getInstance();
         Calendar endTime = Calendar.getInstance();
         endTime.setTimeInMillis(endTime.getTimeInMillis() + 3600000);
         events.add(new Event(0, "Test Event", "Library", "This is a testable event", "John, Susie, Sally, Rob", startTime, endTime));
+    }
+
+    public static String getJSONifiedString(List<Event> events) {
+        String json = new Gson().toJson(events);
+        JSONArray jsonArray = new JSONArray();
+        try {
+            jsonArray = new JSONArray(json);
+        } catch (JSONException e) {
+            // Eat it
+        }
+        return jsonArray.toString();
     }
 
     // Hilariously, days are 1 based and months are 0 based... Good job java calendar
@@ -70,13 +86,12 @@ public class EventUtils {
 
     /**
      * Parses Schedule Lookup page calendars
-     *
      */
     public static List<Event> parseScheduleLookupEvent(String pathToParse) throws FileNotFoundException {
         List<Event> events = new ArrayList<>();
         File file = new File(pathToParse);
         Scanner scanner = new Scanner(file);
-        if(!scanner.hasNextLine()){
+        if (!scanner.hasNextLine()) {
             scanner.close();
             return events;
         }
@@ -85,7 +100,7 @@ public class EventUtils {
         String active;
         String t1;
         String t2;
-        while(scanner.hasNextLine() && scanner.nextLine().equals("BEGIN:VEVENT")){
+        while (scanner.hasNextLine() && scanner.nextLine().equals("BEGIN:VEVENT")) {
             e = new Event();
             active = scanner.nextLine();
             // I use substring for speed since we know exactly what the preceding string is
@@ -102,8 +117,8 @@ public class EventUtils {
             // parse calendars
             t1 = scanner.nextLine();
             t2 = scanner.nextLine();
-            if(t2.charAt(0) == 'T'){
-                e.setStartTime(parseICSDate(t1+t2));
+            if (t2.charAt(0) == 'T') {
+                e.setStartTime(parseICSDate(t1 + t2));
                 e.setEndTime(parseICSDate(scanner.nextLine() + scanner.nextLine()));
             } else {
                 e.setStartTime(parseICSDate(t1));
@@ -128,18 +143,18 @@ public class EventUtils {
      * @param date
      * @return
      */
-    public static Calendar parseICSDate(String date){
+    public static Calendar parseICSDate(String date) {
         Calendar calendar = Calendar.getInstance();
         //DTSTART and DTEND are different lengths so no hardcoded substring lengths
         String value = date.split(":")[1];
         //Log.d("parseICSString","input: " + date + " value: " + value);
         calendar.set(
-                Integer.parseInt(value.substring(0,4)),
-                Integer.parseInt(value.substring(4,6)) - 1, //I'll have you know I spent a long time debugging this
-                Integer.parseInt(value.substring(6,8)),
-                Integer.parseInt(value.substring(9,11)),
-                Integer.parseInt(value.substring(11,13)),
-                Integer.parseInt(value.substring(13,15)));
+                Integer.parseInt(value.substring(0, 4)),
+                Integer.parseInt(value.substring(4, 6)) - 1, //I'll have you know I spent a long time debugging this
+                Integer.parseInt(value.substring(6, 8)),
+                Integer.parseInt(value.substring(9, 11)),
+                Integer.parseInt(value.substring(11, 13)),
+                Integer.parseInt(value.substring(13, 15)));
 
 //        Log.d("value", value.substring(0,4) + " " + value.substring(4,6) + " " + value.substring(6,8) + " " + value.substring(9,11) + " " + value.substring(11,13) + " " +
 //                value.substring(13,15));
@@ -154,17 +169,17 @@ public class EventUtils {
      *
      * @return
      */
-    public static List<Event> match(List<List<Event>> events){
+    public static List<Event> match(List<List<Event>> events) {
         List<Event> Conflicts = new ArrayList<>();
-        for(List<Event> e : events){
+        for (List<Event> e : events) {
             Conflicts.addAll(e);
         }
         List<Event> Possibles = generateTwoWeeks();
         List<Event> toRemove;
-        for(Event event : Conflicts){
+        for (Event event : Conflicts) {
             toRemove = new ArrayList<>();
-            for(Event pos: Possibles){
-                if(isConflict(event, pos)){
+            for (Event pos : Possibles) {
+                if (isConflict(event, pos)) {
                     toRemove.add(pos);
                 }
             }
@@ -180,8 +195,8 @@ public class EventUtils {
      * @param e2
      * @return
      */
-    public static boolean isConflict(Event e1, Event e2){
-        if(e1.getEndTimeInMilis() <= e2.getStartTimeInMilis() || e2.getEndTimeInMilis() <= e1.getStartTimeInMilis()){
+    public static boolean isConflict(Event e1, Event e2) {
+        if (e1.getEndTimeInMilis() <= e2.getStartTimeInMilis() || e2.getEndTimeInMilis() <= e1.getStartTimeInMilis()) {
             return false;
         }
         return true;
@@ -204,7 +219,7 @@ public class EventUtils {
      *
      * @return
      */
-    public static List<Event> generateTwoWeeks(){
+    public static List<Event> generateTwoWeeks() {
         List<Event> events = new ArrayList<>();
         Calendar onTheHour = Calendar.getInstance();
         Calendar onTheHalf = Calendar.getInstance();
@@ -213,7 +228,7 @@ public class EventUtils {
         onTheHour.setTimeInMillis(onTheHour.getTimeInMillis() + 24 * ONE_HOUR_IN_MILLIS);
         onTheHalf.set(onTheHour.get(Calendar.YEAR), onTheHour.get(Calendar.MONTH), onTheHour.get(Calendar.DATE), 0, 30, 0);
         Event e;
-        for( int i = 0; i < 336; i++){
+        for (int i = 0; i < 336; i++) {
             e = new Event();
             e.setName("Possible Meeting Time");
             e.setStartTimeInMilis(onTheHour.getTimeInMillis() + i * ONE_HOUR_IN_MILLIS);

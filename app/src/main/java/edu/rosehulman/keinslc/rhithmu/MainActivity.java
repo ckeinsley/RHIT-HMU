@@ -1,6 +1,8 @@
 package edu.rosehulman.keinslc.rhithmu;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -34,6 +36,8 @@ import edu.rosehulman.rosefire.Rosefire;
 import edu.rosehulman.rosefire.RosefireResult;
 
 import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.FIREBASE_PATH;
+import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.PREFS_NAME;
+import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.PREF_MPATH;
 import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.RC_GOOGLE_LOGIN;
 import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.RC_ROSEFIRE_LOGIN;
 
@@ -65,7 +69,11 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 Log.d(Constants.TAG_MAIN_ACTIVITY, "Current User: " + user);
                 if (user != null) {
-                    switchToWeekViewFragment("users/" + user.getUid());
+                    SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString(PREF_MPATH, "users/" + user.getUid());
+                    editor.commit();
+                    switchToWeekViewFragment();
                 } else {
                     switchToLoginFragment();
                 }
@@ -161,8 +169,9 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    public void launchDeviceList() {
+    public void launchBluetoothFragment() {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.addToBackStack("WeekView");
         ft.replace(R.id.fragment_container, new BluetoothFragment());
         ft.commit();
     }
@@ -173,12 +182,9 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
         ft.commit();
     }
 
-    private void switchToWeekViewFragment(String path) {
+    private void switchToWeekViewFragment() {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         Fragment weekViewFragment = new WeekViewFragment();
-        Bundle args = new Bundle();
-        args.putString(FIREBASE_PATH, path);
-        weekViewFragment.setArguments(args);
         ft.replace(R.id.fragment_container, weekViewFragment, "Passwords");
         ft.commit();
     }

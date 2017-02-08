@@ -3,6 +3,7 @@ package edu.rosehulman.keinslc.rhithmu.fragments;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Bundle;
@@ -46,7 +47,8 @@ import edu.rosehulman.keinslc.rhithmu.R;
 import edu.rosehulman.keinslc.rhithmu.Utils.Constants;
 import edu.rosehulman.keinslc.rhithmu.Utils.EventUtils;
 
-import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.FIREBASE_PATH;
+import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.PREFS_NAME;
+import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.PREF_MPATH;
 
 /**
  * Created by keinslc on 1/26/2017.
@@ -71,7 +73,8 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        mPath = getArguments().getString(FIREBASE_PATH);
+        SharedPreferences prefs = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        mPath = prefs.getString(PREF_MPATH, "NoUid");
     }
 
     @Override
@@ -207,7 +210,7 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
             public void onSelectedFilePaths(String[] files) {
                 String filePath = files[0];
                 if (!filePath.contains("ics")) {
-                    Toast.makeText(getContext(), "Should be a .ics file.", Toast.LENGTH_LONG);
+                    Toast.makeText(getContext(), "File should look like 'username.ics'", Toast.LENGTH_LONG).show();
                     launchFilePicker();
                 } else {
                     try {
@@ -236,7 +239,7 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
             @Override
             public void onClick(View v) {
                 Log.d(Constants.TAG_WEEK_VIEW, "Match Schedules Clicked");
-                mActivity.launchDeviceList();
+                mActivity.launchBluetoothFragment();
             }
         });
 

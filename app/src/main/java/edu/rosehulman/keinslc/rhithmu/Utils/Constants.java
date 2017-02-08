@@ -5,10 +5,11 @@ package edu.rosehulman.keinslc.rhithmu.Utils;
  */
 
 public class Constants {
+    /*Share Prefs*/
+    public static final String PREFS_NAME = "MySharedPrefs";
+    public static final String PREF_MPATH = "MyUserID";
     /*Used for transition from weekView to AddEditDeleteEventFragment*/
     public static final String ARG_EVENT = "myEventArgument";
-    //public static final String ARG_KEY = "myEventKey";
-    public static final String ARG_PATH = "userPath";
     /*Used for transition from login fragment to weekView*/
     public static final String FIREBASE_PATH = "myFirebasePath";
     public static final int RC_ROSEFIRE_LOGIN = 34;

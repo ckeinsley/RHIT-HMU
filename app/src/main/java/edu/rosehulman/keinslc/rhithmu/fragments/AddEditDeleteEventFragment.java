@@ -1,6 +1,7 @@
 package edu.rosehulman.keinslc.rhithmu.fragments;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -28,7 +29,8 @@ import edu.rosehulman.keinslc.rhithmu.Utils.Constants;
 import edu.rosehulman.keinslc.rhithmu.Utils.EventUtils;
 
 import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.ARG_EVENT;
-import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.ARG_PATH;
+import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.PREFS_NAME;
+import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.PREF_MPATH;
 
 /**
  * Created by keinslc on 1/15/2017.
@@ -71,8 +73,6 @@ public class AddEditDeleteEventFragment extends Fragment {
         AddEditDeleteEventFragment frag = new AddEditDeleteEventFragment();
         Bundle args = new Bundle();
         args.putParcelable(ARG_EVENT, event);
-        //args.putString(ARG_KEY, event.getKey());
-        args.putString(ARG_PATH, path);
         frag.setArguments(args);
         return frag;
     }
@@ -93,11 +93,12 @@ public class AddEditDeleteEventFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = LayoutInflater.from(getActivity()).inflate(
                 R.layout.fragment_add_edit_delete_event, null);
+        SharedPreferences prefs = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        mPath = prefs.getString(PREF_MPATH, "NoUid");
 
         // The arguments cannot be null, new event must be passed in at least
         if (getArguments() != null) {
             //String key = getArguments().getString(ARG_KEY);
-            mPath = getArguments().getString(ARG_PATH);
             mEvent = getArguments().getParcelable(ARG_EVENT);
             mEventRef = FirebaseDatabase.getInstance().getReference().child(mPath);
         } else {
@@ -210,7 +211,7 @@ public class AddEditDeleteEventFragment extends Fragment {
 //                    mEventRef.child(mEvent.getKey()).setValue(mEvent);
 //                }
                 //so this might qualify as cheating the system but who cares
-                if(RecurringFrequencySpinner.getVisibility() == View.GONE) {
+                if (RecurringFrequencySpinner.getVisibility() == View.GONE) {
                     addEvent();
                 } else {
                     addRecurringEvents();
@@ -311,7 +312,7 @@ public class AddEditDeleteEventFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                 String option = adapterView.getItemAtPosition(position).toString();
-                if(option.equals("No")) {
+                if (option.equals("No")) {
                     RecurringFrequencySpinner.setVisibility(View.GONE);
                     RecurringEndDateTextView.setVisibility(View.GONE);
                 } else {
@@ -344,7 +345,7 @@ public class AddEditDeleteEventFragment extends Fragment {
     }
 
     //If recurring is true call this and let the madness begin
-    private void addRecurringEvents(){
+    private void addRecurringEvents() {
         //TODO: deal with daylights savings
         long factor = 0;
         Calendar recurStart = (Calendar) mStartTime.clone();
@@ -352,25 +353,25 @@ public class AddEditDeleteEventFragment extends Fragment {
         //We add a day in case someone gives us the exact stop day
         long max = mRecurringTime.getTimeInMillis() + EventUtils.ONE_DAY_IN_MILLIS;
         String option = RecurringFrequencySpinner.getSelectedItem().toString();
-        if (option.equals("Daily")){
+        if (option.equals("Daily")) {
             factor = EventUtils.ONE_DAY_IN_MILLIS;
         } else if (option.equals("Weekly")) {
             factor = EventUtils.ONE_WEEK_IN_MILLIS;
         } else {
             //guess we have to do this the hard way
             Log.d("Monthly", "in monthly");
-            while (recurStart.getTimeInMillis() < max){
+            while (recurStart.getTimeInMillis() < max) {
                 mEvent.setStartTime(recurStart);
                 mEvent.setEndTime(recurEnd);
                 addEvent();
                 //On the off chance that some madman split their event over two months, we're ready
                 //side note: if this causes an error tell IntelliJ to piss off because the code works
-                if(recurStart.get(Calendar.MONTH) == Calendar.DECEMBER){
+                if (recurStart.get(Calendar.MONTH) == Calendar.DECEMBER) {
                     recurStart.set(Calendar.MONTH, Calendar.JANUARY);
                 } else {
                     recurStart.set(Calendar.MONTH, recurStart.get(Calendar.MONTH) + 1);
                 }
-                if(recurEnd.get(Calendar.MONTH) == Calendar.DECEMBER){
+                if (recurEnd.get(Calendar.MONTH) == Calendar.DECEMBER) {
                     recurEnd.set(Calendar.MONTH, Calendar.JANUARY);
                 } else {
                     recurEnd.set(Calendar.MONTH, recurEnd.get(Calendar.MONTH) + 1);
@@ -378,7 +379,7 @@ public class AddEditDeleteEventFragment extends Fragment {
             }
             return;
         }
-        while(recurStart.getTimeInMillis() < max){
+        while (recurStart.getTimeInMillis() < max) {
             mEvent.setStartTime(recurStart);
             mEvent.setEndTime(recurEnd);
             addEvent();
@@ -389,7 +390,7 @@ public class AddEditDeleteEventFragment extends Fragment {
     }
 
     //export some work and isolate the firebase connecting
-    private void addEvent(){
+    private void addEvent() {
 //        mEvent.setStartTimeInMilis(startTime);
 //        mEvent.setEndTimeInMilis(endTime);
         if (mEvent.getId() == -1) {
@@ -402,7 +403,7 @@ public class AddEditDeleteEventFragment extends Fragment {
         mEvent.setId(-1);
     }
 
-    public interface OnEventEditedListener{
+    public interface OnEventEditedListener {
         void onEventEditFinished(String path);
     }
 }

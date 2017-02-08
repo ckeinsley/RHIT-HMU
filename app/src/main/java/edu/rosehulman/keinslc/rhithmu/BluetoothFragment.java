@@ -4,7 +4,9 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -26,8 +28,21 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.rosehulman.keinslc.rhithmu.Utils.Constants;
+import edu.rosehulman.keinslc.rhithmu.Utils.EventUtils;
 import edu.rosehulman.keinslc.rhithmu.Utils.SyncCalendarService;
+
+import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.PREFS_NAME;
+import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.PREF_MPATH;
 
 /**
  * This fragment controls Bluetooth to communicate with other devices.
@@ -35,11 +50,12 @@ import edu.rosehulman.keinslc.rhithmu.Utils.SyncCalendarService;
 public class BluetoothFragment extends Fragment {
 
     private static final String TAG = "BluetoothFragment";
-
     // Intent request codes
     private static final int REQUEST_CONNECT_DEVICE_SECURE = 1;
     private static final int REQUEST_CONNECT_DEVICE_INSECURE = 2;
     private static final int REQUEST_ENABLE_BT = 3;
+    private String mPath;
+    private List<Event> mList = new ArrayList<>();
 
     // Layout Views
     private ListView mConversationView;
@@ -144,6 +160,23 @@ public class BluetoothFragment extends Fragment {
             Toast.makeText(activity, "Bluetooth is not available", Toast.LENGTH_LONG).show();
             activity.finish();
         }
+        SharedPreferences prefs = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        mPath = prefs.getString(PREF_MPATH, "NoUid");
+        Query mQuery = FirebaseDatabase.getInstance().getReference().child(mPath).orderByChild("startTimeInMilis");
+        mQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    mList.add(ds.getValue(Event.class));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                //Don't care
+            }
+        });
+
     }
 
     @Override
@@ -166,7 +199,7 @@ public class BluetoothFragment extends Fragment {
         if (mChatService != null) {
             mChatService.stop();
         }
-    }
+}
 
     @Override
     public void onResume() {
@@ -218,8 +251,10 @@ public class BluetoothFragment extends Fragment {
                 View view = getView();
                 if (null != view) {
                     TextView textView = (TextView) view.findViewById(R.id.edit_text_out);
-                    String message = textView.getText().toString();
-                    //TODO: Generate JSON String and pass it over
+                    Toast.makeText(getActivity(), "Working", Toast.LENGTH_SHORT).show();
+                    //TODO: This will hang the app so we need to make sure they can only press it once
+                    mSendButton.setClickable(false);
+                    String message = EventUtils.getJSONifiedString(mList);
                     sendMessage(message);
                 }
             }
@@ -356,12 +391,6 @@ public class BluetoothFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.secure_connect_scan: {
-                // Launch the DeviceListActivity to see devices and do scan
-                Intent serverIntent = new Intent(getActivity(), DeviceListActivity.class);
-                startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE_SECURE);
-                return true;
-            }
             case R.id.insecure_connect_scan: {
                 // Launch the DeviceListActivity to see devices and do scan
                 Intent serverIntent = new Intent(getActivity(), DeviceListActivity.class);
