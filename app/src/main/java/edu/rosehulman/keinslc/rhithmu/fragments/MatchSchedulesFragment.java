@@ -17,7 +17,6 @@ import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import edu.rosehulman.keinslc.rhithmu.Event;
@@ -36,14 +35,14 @@ public class MatchSchedulesFragment extends Fragment {
     private Button mCommitButton;
     private WeekView mWeekView;
     private String mPath;
-    private Event[] mPossibleEvents;
+    private List<Event> mPossibleEvents;
     private List<Event> mSelectedEvents;
     private boolean loadedFirstSetOfEvents;
 
-    public static Fragment newInstance(List<Event> possibleEvents) {
+    public static Fragment newInstance(ArrayList<Event> possibleEvents) {
         Fragment frag = new MatchSchedulesFragment();
         Bundle args = new Bundle();
-        args.putParcelableArray(ARG_EVENTS_LIST, (Event[]) possibleEvents.toArray());
+        args.putParcelableArrayList(ARG_EVENTS_LIST, possibleEvents);
         frag.setArguments(args);
         return frag;
     }
@@ -57,7 +56,7 @@ public class MatchSchedulesFragment extends Fragment {
         if (getArguments() == null) {
             onDestroy(); // Commit Suicide
         }
-        mPossibleEvents = (Event[]) getArguments().getParcelableArray(ARG_EVENTS_LIST);
+        mPossibleEvents = getArguments().getParcelableArrayList(ARG_EVENTS_LIST);
         mSelectedEvents = new ArrayList<>();
     }
 
@@ -80,9 +79,9 @@ public class MatchSchedulesFragment extends Fragment {
             @Override
             public void onEventClick(WeekViewEvent event, RectF eventRect) {
                 Event event1 = (Event) event; //kinda sketch
-                for (int i = 0; i < mPossibleEvents.length; i++) {
-                    if (mPossibleEvents[i].getKey().equals(event1.getKey())) {
-                        event1 = mPossibleEvents[i];
+                for (int i = 0; i < mPossibleEvents.size(); i++) {
+                    if (mPossibleEvents.get(i).getKey().equals(event1.getKey())) {
+                        event1 = mPossibleEvents.get(i);
                     }
                 }
             }
@@ -99,7 +98,7 @@ public class MatchSchedulesFragment extends Fragment {
                     return null;
                 }
                 loadedFirstSetOfEvents = true;
-                return Arrays.asList(mPossibleEvents);
+                return mPossibleEvents;
             }
         });
 
@@ -110,9 +109,9 @@ public class MatchSchedulesFragment extends Fragment {
                 Event event1 = (Event) event;
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                 Event currentEvent = null;
-                for (int i = 0; i < mPossibleEvents.length; i++) {
-                    if (mPossibleEvents[i].getKey().equals(event1.getKey())) {
-                        currentEvent = mPossibleEvents[i];
+                for (int i = 0; i < mPossibleEvents.size(); i++) {
+                    if (mPossibleEvents.get(i).getKey().equals(event1.getKey())) {
+                        currentEvent = mPossibleEvents.get(i);
                     }
                 }
                 builder.setTitle(currentEvent.getName());

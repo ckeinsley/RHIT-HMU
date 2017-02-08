@@ -28,12 +28,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import edu.rosehulman.keinslc.rhithmu.Utils.Constants;
 import edu.rosehulman.keinslc.rhithmu.fragments.AddEditDeleteEventFragment;
 import edu.rosehulman.keinslc.rhithmu.fragments.BluetoothFragment;
 import edu.rosehulman.keinslc.rhithmu.fragments.LoginFragment;
+import edu.rosehulman.keinslc.rhithmu.fragments.MatchSchedulesFragment;
 import edu.rosehulman.keinslc.rhithmu.fragments.WeekViewFragment;
 import edu.rosehulman.rosefire.Rosefire;
 import edu.rosehulman.rosefire.RosefireResult;
@@ -224,8 +225,11 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
         ft.commit();
     }
     @Override
-    public void onSchedulesMatch(List<Event> events) {
-
+    public void onSchedulesMatch(ArrayList<Event> events) {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Fragment fragment = MatchSchedulesFragment.newInstance(events);
+        ft.replace(R.id.fragment_container, fragment);
+        ft.commit();
     }
 
 

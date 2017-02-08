@@ -199,6 +199,7 @@ public class BluetoothFragment extends Fragment {
         });
 
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -310,7 +311,9 @@ public class BluetoothFragment extends Fragment {
                 eventListList.add(EventUtils.getEventListfromJSON(recievedEvents));
                 eventListList.add(mList);
                 List<Event> matched = EventUtils.match(eventListList);
-                mCallbackListener.onSchedulesMatch(matched);
+                // Parcleable balks at the idea of a generic list
+                ArrayList<Event> output = new ArrayList<Event>(matched);
+                mCallbackListener.onSchedulesMatch(output);
             }
         });
 
@@ -436,6 +439,10 @@ public class BluetoothFragment extends Fragment {
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         // Attempt to connect to the device
         mChatService.connect(device, secure);
+        mSendButton.setClickable(true);
+        mMatchButton.setClickable(false);
+        hasRecievedEvents = false;
+        hasSentEvents = false;
     }
 
     /*-------------------OPTIONS MENU STUFF-------------------------------------------*/
@@ -464,7 +471,7 @@ public class BluetoothFragment extends Fragment {
     }
 
     public interface bluetoothCallbackListener {
-        void onSchedulesMatch(List<Event> events);
+        void onSchedulesMatch(ArrayList<Event> events);
     }
 
 }

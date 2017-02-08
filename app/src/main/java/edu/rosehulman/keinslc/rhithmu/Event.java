@@ -16,17 +16,6 @@ import edu.rosehulman.keinslc.rhithmu.Utils.EventUtils;
 
 public class Event extends WeekViewEvent implements Parcelable {
 
-    public static final Creator<Event> CREATOR = new Creator<Event>() {
-        @Override
-        public Event createFromParcel(Parcel in) {
-            return new Event(in);
-        }
-
-        @Override
-        public Event[] newArray(int size) {
-            return new Event[size];
-        }
-    };
     private String key;
     private String description;
     private String invitees;
@@ -51,9 +40,38 @@ public class Event extends WeekViewEvent implements Parcelable {
     }
 
     protected Event(Parcel in) {
+        key = in.readString();
         description = in.readString();
         invitees = in.readString();
+        mStartTimeInMilis = in.readLong();
+        mEndTimeInMilis = in.readLong();
     }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(key);
+        dest.writeString(description);
+        dest.writeString(invitees);
+        dest.writeLong(mStartTimeInMilis);
+        dest.writeLong(mEndTimeInMilis);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<Event> CREATOR = new Creator<Event>() {
+        @Override
+        public Event createFromParcel(Parcel in) {
+            return new Event(in);
+        }
+
+        @Override
+        public Event[] newArray(int size) {
+            return new Event[size];
+        }
+    };
 
     public String getDescription() {
         return description;
@@ -125,17 +143,6 @@ public class Event extends WeekViewEvent implements Parcelable {
     public void setStartTime(Calendar startTime) {
         super.setStartTime((Calendar) startTime.clone());
         mStartTimeInMilis = startTime.getTimeInMillis();
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(description);
-        dest.writeString(invitees);
     }
 
     @Override
