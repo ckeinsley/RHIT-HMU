@@ -28,8 +28,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import java.util.List;
+
 import edu.rosehulman.keinslc.rhithmu.Utils.Constants;
 import edu.rosehulman.keinslc.rhithmu.fragments.AddEditDeleteEventFragment;
+import edu.rosehulman.keinslc.rhithmu.fragments.BluetoothFragment;
 import edu.rosehulman.keinslc.rhithmu.fragments.LoginFragment;
 import edu.rosehulman.keinslc.rhithmu.fragments.WeekViewFragment;
 import edu.rosehulman.rosefire.Rosefire;
@@ -41,7 +44,7 @@ import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.PREF_MPATH;
 import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.RC_GOOGLE_LOGIN;
 import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.RC_ROSEFIRE_LOGIN;
 
-public class MainActivity extends AppCompatActivity implements WeekViewFragment.OnEventSelectedListener, AddEditDeleteEventFragment.OnEventEditedListener, LoginFragment.OnLoginListener, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends AppCompatActivity implements WeekViewFragment.OnEventSelectedListener, AddEditDeleteEventFragment.OnEventEditedListener, LoginFragment.OnLoginListener, GoogleApiClient.OnConnectionFailedListener, BluetoothFragment.bluetoothCallbackListener {
 
     private FirebaseAuth mFirebaseAuth;
     private OnCompleteListener mOnCompleteListener;
@@ -220,6 +223,10 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
         ft.replace(R.id.fragment_container, frag);
         ft.commit();
     }
+    @Override
+    public void onSchedulesMatch(List<Event> events) {
+
+    }
 
 
     /*----- LIFECYCLE METHODS -----*/
@@ -236,5 +243,6 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
             mFirebaseAuth.removeAuthStateListener(mAuthListener);
         }
     }
+
 }
 

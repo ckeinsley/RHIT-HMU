@@ -77,18 +77,6 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
         mPath = prefs.getString(PREF_MPATH, "NoUid");
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        mActivity = (MainActivity) context;
-        if (context instanceof OnEventSelectedListener) {
-            mOnEventSelectedListener = (OnEventSelectedListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnEventSelectedListener");
-        }
-    }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -140,6 +128,18 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
         } else {
             mEventRef = FirebaseDatabase.getInstance().getReference().child(mPath);
             mEventRef.addChildEventListener(this);
+        }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mActivity = (MainActivity) context;
+        if (context instanceof OnEventSelectedListener) {
+            mOnEventSelectedListener = (OnEventSelectedListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnEventSelectedListener");
         }
     }
 

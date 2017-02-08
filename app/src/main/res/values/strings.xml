@@ -70,4 +70,5 @@
         <item>Monthly</item>
     </string-array>
     <string name="until">Until: </string>
+    <string name="commitScheduleButton">Finalize Additions</string>
 </resources>

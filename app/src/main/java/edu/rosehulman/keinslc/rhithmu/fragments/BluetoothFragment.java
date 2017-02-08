@@ -1,4 +1,4 @@
-package edu.rosehulman.keinslc.rhithmu;
+package edu.rosehulman.keinslc.rhithmu.fragments;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -13,18 +13,15 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
@@ -34,10 +31,12 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
+import edu.rosehulman.keinslc.rhithmu.DeviceListActivity;
+import edu.rosehulman.keinslc.rhithmu.Event;
+import edu.rosehulman.keinslc.rhithmu.R;
 import edu.rosehulman.keinslc.rhithmu.Utils.Constants;
 import edu.rosehulman.keinslc.rhithmu.Utils.EventUtils;
 import edu.rosehulman.keinslc.rhithmu.Utils.SyncCalendarService;
@@ -48,6 +47,8 @@ import static edu.rosehulman.keinslc.rhithmu.Utils.SyncCalendarService.STATE_CON
 
 /**
  * This fragment controls Bluetooth to communicate with other devices.
+ * This includes a handler to handle passing events from the threaded SyncCalendarService and this UI thread
+ * This also requires that it's context implements a callback interface for passing events back once done.
  */
 public class BluetoothFragment extends Fragment {
 
@@ -56,11 +57,10 @@ public class BluetoothFragment extends Fragment {
     private static final int REQUEST_CONNECT_DEVICE_SECURE = 1;
     private static final int REQUEST_CONNECT_DEVICE_INSECURE = 2;
     private static final int REQUEST_ENABLE_BT = 3;
-    private static long TWO_WEEKS_IN_MILIS = 1209600000;
-    private String mPath;
     private String recievedEvents;
     private boolean hasSentEvents;
     private boolean hasRecievedEvents;
+    private bluetoothCallbackListener mCallbackListener;
 
     private List<Event> mList = new ArrayList<>();
 
@@ -105,10 +105,8 @@ public class BluetoothFragment extends Fragment {
                     }
                     break;
                 case Constants.MESSAGE_WRITE:
-                    byte[] writeBuf = (byte[]) msg.obj;
                     // construct a string from the buffer
-                    String writeMessage = new String(writeBuf);
-                    hasSentEvents = true;
+                    setHasSentEvents();
                     mConversationArrayAdapter.add("Me:  " + "Sent Events");
                     break;
                 case Constants.MESSAGE_READ:
@@ -145,21 +143,26 @@ public class BluetoothFragment extends Fragment {
      * Member object for the chat services
      */
     private SyncCalendarService mChatService = null;
-    /**
-     * The action listener for the EditText widget, to listen for the return key
-     */
-    private TextView.OnEditorActionListener mWriteListener
-            = new TextView.OnEditorActionListener() {
-        public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
-            // If the action is a key-up event on the return key, send the message
-            if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_UP) {
-                String message = view.getText().toString();
-                sendMessage(message);
-            }
-            return true;
-        }
-    };
 
+
+    /*------------------------------------------Recieved Events Setter------------------------------------------------*/
+    private void setHasReceivedEvents() {
+        hasRecievedEvents = true;
+        if (hasSentEvents) {
+            mMatchButton.setClickable(true);
+            Toast.makeText(getActivity(), "Ready to Match", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void setHasSentEvents() {
+        hasSentEvents = true;
+        if (hasRecievedEvents) {
+            mMatchButton.setClickable(true);
+            Toast.makeText(getActivity(), "Ready to Match", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /*-------------LIFE CYCLE METHODS-------------------------------*/
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -174,10 +177,11 @@ public class BluetoothFragment extends Fragment {
             activity.finish();
         }
         SharedPreferences prefs = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        mPath = prefs.getString(PREF_MPATH, "NoUid");
+        String mPath = prefs.getString(PREF_MPATH, "NoUid");
         //Only Query Firebase for the next two weeks of stuff
         Calendar cal = Calendar.getInstance();
         long l = cal.getTimeInMillis();
+        long TWO_WEEKS_IN_MILIS = 1209600000;
         l += TWO_WEEKS_IN_MILIS;
         Query mQuery = FirebaseDatabase.getInstance().getReference().child(mPath).orderByChild("startTimeInMilis").endAt(l);
         mQuery.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -195,12 +199,27 @@ public class BluetoothFragment extends Fragment {
         });
 
     }
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_bluetooth_chat, container, false);
+    }
 
-    /*------------------------------------------Recieved Events Setter------------------------------------------------*/
-    private void setHasReceivedEvents() {
-        hasRecievedEvents = true;
-        if (hasSentEvents == true) {
-            mMatchButton.setClickable(true);
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        mConversationView = (ListView) view.findViewById(R.id.in);
+        mSendButton = (Button) view.findViewById(R.id.button_send);
+        mMatchButton = (Button) view.findViewById(R.id.button_match);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof bluetoothCallbackListener) {
+            mCallbackListener = (bluetoothCallbackListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnEventSelectedListener");
         }
     }
 
@@ -251,18 +270,7 @@ public class BluetoothFragment extends Fragment {
         }
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_bluetooth_chat, container, false);
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        mConversationView = (ListView) view.findViewById(R.id.in);
-        mSendButton = (Button) view.findViewById(R.id.button_send);
-        mMatchButton = (Button) view.findViewById(R.id.button_match);
-    }
+    /*--------------------HELPERS / SETUP METHODS-----------------------------------*/
 
     /**
      * Set up the UI and background operations for chat.
@@ -292,7 +300,7 @@ public class BluetoothFragment extends Fragment {
                 }
             }
         });
-
+        // Parse events from JSON, Match Them, then send them back to mainactivity for processing
         mMatchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -301,9 +309,8 @@ public class BluetoothFragment extends Fragment {
                 List<List<Event>> eventListList = new ArrayList<List<Event>>();
                 eventListList.add(EventUtils.getEventListfromJSON(recievedEvents));
                 eventListList.add(mList);
-                //TODO something with this inforomation
                 List<Event> matched = EventUtils.match(eventListList);
-                Log.d("WOAH NELLY", Arrays.deepToString(matched.toArray()));
+                mCallbackListener.onSchedulesMatch(matched);
             }
         });
 
@@ -383,6 +390,8 @@ public class BluetoothFragment extends Fragment {
         actionBar.setSubtitle(subTitle);
     }
 
+
+    /*-----------------ON ACTIVITY RESULT----------------------------------------*/
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUEST_CONNECT_DEVICE_SECURE:
@@ -429,6 +438,8 @@ public class BluetoothFragment extends Fragment {
         mChatService.connect(device, secure);
     }
 
+    /*-------------------OPTIONS MENU STUFF-------------------------------------------*/
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.bluetooth_chat, menu);
@@ -450,6 +461,10 @@ public class BluetoothFragment extends Fragment {
             }
         }
         return false;
+    }
+
+    public interface bluetoothCallbackListener {
+        void onSchedulesMatch(List<Event> events);
     }
 
 }
