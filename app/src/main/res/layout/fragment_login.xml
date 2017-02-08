@@ -32,74 +32,22 @@
         android:gravity="center"
         android:visibility="gone" />
 
-    <LinearLayout
-        android:id="@+id/login_form"
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/google_sign_in_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:orientation="vertical">
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp" />
 
-        <AutoCompleteTextView
-            android:id="@+id/email"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:hint="@string/prompt_email"
-            android:imeOptions="actionNext"
-            android:inputType="textEmailAddress"
-            android:maxLines="1"
-            android:shadowColor="@color/colorWhiteText"
-            android:singleLine="true"
-            android:textColor="@color/colorWhiteText"
-            android:textColorHighlight="@color/colorWhiteText"
-            android:textColorHint="@color/colorWhiteText"
-            android:textColorLink="@color/colorWhiteText" />
+    <Button
+        android:id="@+id/rosefire_sign_in_button"
+        style="?android:textAppearanceSmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@color/colorPrimary"
+        android:text="@string/login_with_rosefire"
+        android:textColor="@color/colorWhiteText"
+        android:textStyle="bold" />
 
-        <EditText
-            android:id="@+id/password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:hint="@string/prompt_password"
-            android:imeActionLabel="@string/action_sign_in"
-            android:imeOptions="actionUnspecified"
-            android:inputType="textPassword"
-            android:maxLines="1"
-            android:shadowColor="@color/colorWhiteText"
-            android:singleLine="true"
-            android:textColor="@color/colorWhiteText"
-            android:textColorHighlight="@color/colorWhiteText"
-            android:textColorHint="@color/colorWhiteText"
-            android:textColorLink="@color/colorWhiteText" />
-
-        <Button
-            android:id="@+id/email_sign_in_button"
-            style="?android:textAppearanceSmall"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@color/colorPrimary"
-            android:text="@string/action_sign_in"
-            android:textColor="@color/colorWhiteText"
-            android:textStyle="bold" />
-
-        <com.google.android.gms.common.SignInButton
-            android:id="@+id/google_sign_in_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp" />
-
-        <Button
-            android:id="@+id/rosefire_sign_in_button"
-            style="?android:textAppearanceSmall"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@color/colorPrimary"
-            android:text="@string/login_with_rosefire"
-            android:textColor="@color/colorWhiteText"
-            android:textStyle="bold" />
-
-    </LinearLayout>
 </LinearLayout>
