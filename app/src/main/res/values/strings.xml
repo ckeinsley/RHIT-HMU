@@ -70,5 +70,6 @@
         <item>Monthly</item>
     </string-array>
     <string name="until">Until: </string>
-    <string name="commitScheduleButton">Finalize Additions</string>
+    <string name="commitScheduleButton">Add Selected Events</string>
+    <string name="match_events_button_text">Match Events</string>
 </resources>

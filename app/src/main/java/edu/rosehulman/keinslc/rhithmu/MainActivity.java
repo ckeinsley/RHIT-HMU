@@ -45,7 +45,7 @@ import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.PREF_MPATH;
 import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.RC_GOOGLE_LOGIN;
 import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.RC_ROSEFIRE_LOGIN;
 
-public class MainActivity extends AppCompatActivity implements WeekViewFragment.OnEventSelectedListener, AddEditDeleteEventFragment.OnEventEditedListener, LoginFragment.OnLoginListener, GoogleApiClient.OnConnectionFailedListener, BluetoothFragment.bluetoothCallbackListener {
+public class MainActivity extends AppCompatActivity implements MatchSchedulesFragment.MatchScheduleListener, WeekViewFragment.OnEventSelectedListener, AddEditDeleteEventFragment.OnEventEditedListener, LoginFragment.OnLoginListener, GoogleApiClient.OnConnectionFailedListener, BluetoothFragment.bluetoothCallbackListener {
 
     private FirebaseAuth mFirebaseAuth;
     private OnCompleteListener mOnCompleteListener;
@@ -193,6 +193,16 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
         ft.commit();
     }
 
+
+    @Override
+    public void onEventSelectionFinished() {
+        FragmentManager fm = getSupportFragmentManager();
+        for (int i = 0; i < fm.getBackStackEntryCount(); i++) {
+            fm.popBackStackImmediate();
+        }
+        switchToWeekViewFragment();
+    }
+
     @Override
     public void onEventSelected(Event event, String path) {
         FragmentManager fm = getSupportFragmentManager();
@@ -224,6 +234,7 @@ public class MainActivity extends AppCompatActivity implements WeekViewFragment.
         ft.replace(R.id.fragment_container, frag);
         ft.commit();
     }
+
     @Override
     public void onSchedulesMatch(ArrayList<Event> events) {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();

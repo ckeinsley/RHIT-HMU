@@ -140,7 +140,7 @@ public class EventUtils {
                 e.setEndTime(parseICSDate(t2));
             }
             // add our new event
-            e.setId(Long.valueOf(15));
+            e.setId(23L);
             events.add(e);
             //throw away unused lines
             scanner.nextLine();
@@ -182,7 +182,6 @@ public class EventUtils {
     /**
      * Creates 2 weeks worth of hour events and then eliminates events where conflicts occur
      * hypothetical efficiency is O(N) where N = number of events
-     *
      */
     public static List<Event> match(List<List<Event>> events) {
         List<Event> Conflicts = new ArrayList<>();
@@ -240,16 +239,19 @@ public class EventUtils {
         onTheHour.setTimeInMillis(onTheHour.getTimeInMillis() + 24 * ONE_HOUR_IN_MILLIS);
         onTheHalf.set(onTheHour.get(Calendar.YEAR), onTheHour.get(Calendar.MONTH), onTheHour.get(Calendar.DATE), 0, 30, 0);
         Event e;
+        long id = 10;
         for (int i = 0; i < 336; i++) {
             e = new Event();
             e.setName("Possible Meeting Time");
             e.setStartTimeInMilis(onTheHour.getTimeInMillis() + i * ONE_HOUR_IN_MILLIS);
             e.setEndTimeInMilis(onTheHalf.getTimeInMillis() + i * ONE_HOUR_IN_MILLIS);
+            e.setId(id++);
             events.add(e);
             e = new Event();
             e.setName("Possible Meeting Time");
             e.setStartTimeInMilis(onTheHalf.getTimeInMillis() + i * ONE_HOUR_IN_MILLIS);
             e.setEndTimeInMilis(onTheHour.getTimeInMillis() + (i + 1) * ONE_HOUR_IN_MILLIS);
+            e.setId(id++);
             events.add(e);
         }
 

@@ -294,7 +294,6 @@ public class BluetoothFragment extends Fragment {
                 if (null != view) {
                     if (mChatService.getState() == STATE_CONNECTED) {
                         Toast.makeText(getActivity(), "Working", Toast.LENGTH_SHORT).show();
-                        mSendButton.setClickable(false);
                     }
                     String message = EventUtils.getJSONifiedString(mList);
                     sendMessage(message);

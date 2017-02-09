@@ -6,6 +6,7 @@ import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,8 @@ import android.widget.Button;
 import com.alamkanak.weekview.MonthLoader;
 import com.alamkanak.weekview.WeekView;
 import com.alamkanak.weekview.WeekViewEvent;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +41,7 @@ public class MatchSchedulesFragment extends Fragment {
     private List<Event> mPossibleEvents;
     private List<Event> mSelectedEvents;
     private boolean loadedFirstSetOfEvents;
+    private MatchScheduleListener mCallbackListener;
 
     public static Fragment newInstance(ArrayList<Event> possibleEvents) {
         Fragment frag = new MatchSchedulesFragment();
@@ -45,6 +49,17 @@ public class MatchSchedulesFragment extends Fragment {
         args.putParcelableArrayList(ARG_EVENTS_LIST, possibleEvents);
         frag.setArguments(args);
         return frag;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof MatchScheduleListener) {
+            mCallbackListener = (MatchScheduleListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnEventSelectedListener");
+        }
     }
 
     @Override
@@ -66,9 +81,22 @@ public class MatchSchedulesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_match_schedules, container, false);
 
         mCommitButton = (Button) view.findViewById(R.id.button_commit_schedules);
+        mCommitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DatabaseReference mRef = FirebaseDatabase.getInstance().getReference().child(mPath);
+                for (Event event : mSelectedEvents) {
+                    // Restore Default Color
+                    event.setColor(0);
+                    mRef.push().setValue(event);
+                }
+                mCallbackListener.onEventSelectionFinished();
+            }
+        });
         mWeekView = (WeekView) view.findViewById(R.id.commitWeekView);
 
         mWeekView.notifyDatasetChanged();
+        initializeWeekViewListeners();
 
         return view;
     }
@@ -79,9 +107,21 @@ public class MatchSchedulesFragment extends Fragment {
             @Override
             public void onEventClick(WeekViewEvent event, RectF eventRect) {
                 Event event1 = (Event) event; //kinda sketch
+                int color = event1.getColor();
                 for (int i = 0; i < mPossibleEvents.size(); i++) {
-                    if (mPossibleEvents.get(i).getKey().equals(event1.getKey())) {
-                        event1 = mPossibleEvents.get(i);
+                    if (mPossibleEvents.get(i).getId() == event1.getId()) {
+                        if (color == 0) {
+                            event1 = mPossibleEvents.get(i);
+                            event1.setColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryLight));
+                            mSelectedEvents.add(event1);
+                        } else {
+                            event1 = mPossibleEvents.get(i);
+                            event1.setColor(0);
+                            mSelectedEvents.remove(event1);
+                        }
+                        // This allows us to reload only one set without doing maths
+                        loadedFirstSetOfEvents = false;
+                        mWeekView.notifyDatasetChanged();
                     }
                 }
             }
@@ -95,7 +135,7 @@ public class MatchSchedulesFragment extends Fragment {
                 // My hacky way to avoid figuring out which month we are dealing with since we have limited
                 //events
                 if (loadedFirstSetOfEvents) {
-                    return null;
+                    return new ArrayList<WeekViewEvent>();
                 }
                 loadedFirstSetOfEvents = true;
                 return mPossibleEvents;
@@ -110,7 +150,7 @@ public class MatchSchedulesFragment extends Fragment {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                 Event currentEvent = null;
                 for (int i = 0; i < mPossibleEvents.size(); i++) {
-                    if (mPossibleEvents.get(i).getKey().equals(event1.getKey())) {
+                    if (mPossibleEvents.get(i).getId() == event1.getId()) {
                         currentEvent = mPossibleEvents.get(i);
                     }
                 }
@@ -119,5 +159,9 @@ public class MatchSchedulesFragment extends Fragment {
                 builder.show();
             }
         });
+    }
+
+    public interface MatchScheduleListener {
+        void onEventSelectionFinished();
     }
 }

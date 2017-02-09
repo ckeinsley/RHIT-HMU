@@ -155,8 +155,7 @@ public class AddEditDeleteEventFragment extends Fragment {
         mRecurringTime = Calendar.getInstance();
         updateView();
         setupButtonListeners();
-
-
+        
         return view;
     }
 
@@ -206,12 +205,12 @@ public class AddEditDeleteEventFragment extends Fragment {
                 mEvent.setLocation(eventLocationEditText.getText().toString());
                 mEvent.setDescription(eventDescriptionEditText.getText().toString());
                 mEvent.setInvitees(eventInviteesEditText.getText().toString());
-//                if (mEvent.getId() == -1) {
-//                    mEvent.setId(EventUtils.getNewId());
-//                    mEventRef.push().setValue(mEvent);
-//                } else {
-//                    mEventRef.child(mEvent.getKey()).setValue(mEvent);
-//                }
+                if (mEvent.getId() == -1) {
+                    mEvent.setId(EventUtils.getNewId());
+                    mEventRef.push().setValue(mEvent);
+                } else {
+                    mEventRef.child(mEvent.getKey()).setValue(mEvent);
+                }
                 //so this might qualify as cheating the system but who cares
                 if (RecurringFrequencySpinner.getVisibility() == View.GONE) {
                     addEvent();
