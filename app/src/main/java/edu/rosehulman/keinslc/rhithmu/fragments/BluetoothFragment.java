@@ -305,22 +305,25 @@ public class BluetoothFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 mChatService.stop();
-                // Get events recieved
-//                List<List<Event>> eventListList = new ArrayList<List<Event>>();
-                ArrayList<Event> eventListList = new ArrayList<Event>(mList);
-//                Log.d("BT TAG event String", recievedEvents);
-                List<Event> listylistylisty = EventUtils.getEventListfromJSON(recievedEvents);
-                for (Event event : listylistylisty) {
-                    eventListList.add(event);
-                    Log.d("BT TAG event in list:", event.toString());
+                // Init event list list
+                List<List<Event>> eventListList = new ArrayList<List<Event>>();
+                //Gson sucks so make a list from it
+                List<Event> thisIsTheEventListIHadToMakeBecauseGsonSucks = EventUtils.getEventListfromJSON(recievedEvents);
+                //Fix the stupid calendar bugs
+                for (Event e : thisIsTheEventListIHadToMakeBecauseGsonSucks) {
+                    e.setStartTimeInMilis(e.getStartTimeInMilis());
+                    e.setEndTimeInMilis(e.getEndTimeInMilis());
                 }
-//                eventListList.add(EventUtils.getEventListfromJSON(recievedEvents));
-//                eventListList.add(mList);
-//                List<Event> matched = EventUtils.match(eventListList);
-                // Parcleable balks at the idea of a generic list
-//                ArrayList<Event> output = new ArrayList<Event>(matched);
-                mCallbackListener.onSchedulesMatch(eventListList);
-//                mCallbackListener.onSchedulesMatch(output);
+                //Stick that list in our event list list
+                eventListList.add(thisIsTheEventListIHadToMakeBecauseGsonSucks);
+                //Stick our events in the list list
+                eventListList.add(mList);
+                // Match that list list and get a list back
+                List<Event> matched = EventUtils.match(eventListList);
+                //Parcleable balks at the idea of a generic list so we make that matched list into a slightly different list
+                ArrayList<Event> output = new ArrayList<>(matched);
+                // Pass that there list along
+                mCallbackListener.onSchedulesMatch(output);
             }
         });
 

@@ -17,6 +17,17 @@ import edu.rosehulman.keinslc.rhithmu.Utils.EventUtils;
 
 public class Event extends WeekViewEvent implements Parcelable {
 
+    public static final Creator<Event> CREATOR = new Creator<Event>() {
+        @Override
+        public Event createFromParcel(Parcel in) {
+            return new Event(in);
+        }
+
+        @Override
+        public Event[] newArray(int size) {
+            return new Event[size];
+        }
+    };
     private String key;
     @Expose
     private String description;
@@ -26,7 +37,6 @@ public class Event extends WeekViewEvent implements Parcelable {
     private long mStartTimeInMilis;
     @Expose
     private long mEndTimeInMilis;
-
 
     public Event() {
         this(-1, "", "", "", "", Calendar.getInstance(), Calendar.getInstance());
@@ -66,18 +76,6 @@ public class Event extends WeekViewEvent implements Parcelable {
         return 0;
     }
 
-    public static final Creator<Event> CREATOR = new Creator<Event>() {
-        @Override
-        public Event createFromParcel(Parcel in) {
-            return new Event(in);
-        }
-
-        @Override
-        public Event[] newArray(int size) {
-            return new Event[size];
-        }
-    };
-
     public String getDescription() {
         return description;
     }
@@ -110,29 +108,6 @@ public class Event extends WeekViewEvent implements Parcelable {
     }
 
     public void setStartTimeInMilis(long mStartTimeInMilis) {
-        this.mStartTimeInMilis = mStartTimeInMilis;
-        Calendar cal = getStartTime();
-        cal.setTimeInMillis(mStartTimeInMilis);
-        setStartTime(cal);
-    }
-    // Lol but what if this works
-    public long getmEndTimeInMilis() {
-        return mEndTimeInMilis;
-    }
-
-    public void setmEndTimeInMilis(long mEndTimeInMilis) {
-        this.mEndTimeInMilis = mEndTimeInMilis;
-        Calendar cal = getEndTime();
-        cal.setTimeInMillis(mEndTimeInMilis);
-        setEndTime(cal);
-    }
-
-
-    public long getmStartTimeInMilis() {
-        return mStartTimeInMilis;
-    }
-
-    public void setmStartTimeInMilis(long mStartTimeInMilis) {
         this.mStartTimeInMilis = mStartTimeInMilis;
         Calendar cal = getStartTime();
         cal.setTimeInMillis(mStartTimeInMilis);

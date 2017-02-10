@@ -393,12 +393,12 @@ public class AddEditDeleteEventFragment extends Fragment {
     private void addEvent() {
 //        mEvent.setStartTimeInMilis(startTime);
 //        mEvent.setEndTimeInMilis(endTime);
-        if (mEvent.getId() == -1) {
-            mEvent.setId(EventUtils.getNewId());
-            mEventRef.push().setValue(mEvent);
-        } else {
-            mEventRef.child(mEvent.getKey()).setValue(mEvent);
-        }
+//        if (mEvent.getId() == -1) {
+//            mEvent.setId(EventUtils.getNewId());
+//            mEventRef.push().setValue(mEvent);
+//        } else {
+//            mEventRef.child(mEvent.getKey()).setValue(mEvent);
+//        }
         //if we don't do this recurring will not work
         mEvent.setId(-1);
     }

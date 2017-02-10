@@ -3,6 +3,7 @@ package edu.rosehulman.keinslc.rhithmu.Utils;
 import android.util.Log;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.LongSerializationPolicy;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
@@ -37,8 +38,9 @@ public class EventUtils {
     }
 
     public static String getJSONifiedString(List<Event> events) {
-        GsonBuilder builder = new GsonBuilder().excludeFieldsWithoutExposeAnnotation();
+        GsonBuilder builder = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setLongSerializationPolicy(LongSerializationPolicy.STRING);
         String json = builder.create().toJson(events);
+        Log.d("EVENT UNTILS", json);
         return json;
     }
 
@@ -62,7 +64,7 @@ public class EventUtils {
             Log.v(TAG, sb.toString());
         }
 
-        GsonBuilder builder = new GsonBuilder().excludeFieldsWithoutExposeAnnotation();
+        GsonBuilder builder = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setLongSerializationPolicy(LongSerializationPolicy.STRING);
         List<Event> inpList = builder.create().fromJson(output, type);
         //Magical Debugging Junk
         for (int i = 0; i < inpList.size(); i++) {
@@ -207,7 +209,7 @@ public class EventUtils {
                     toRemove.add(pos);
                 }
             }
-            Possibles.remove(toRemove);
+            Possibles.removeAll(toRemove);
         }
         return Possibles;
     }

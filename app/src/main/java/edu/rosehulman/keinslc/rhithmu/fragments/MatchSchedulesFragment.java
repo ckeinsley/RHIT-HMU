@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,15 +69,9 @@ public class MatchSchedulesFragment extends Fragment {
         mPath = prefs.getString(PREF_MPATH, "NoUid");
         loadedFirstSetOfEvents = false;
         if (getArguments() == null) {
-            onDestroy(); // Commit Suicide
+            getActivity().finish();
         }
         mPossibleEvents = getArguments().getParcelableArrayList(ARG_EVENTS_LIST);
-        for (Event e : mPossibleEvents) {
-            if (e.getName().isEmpty()) {
-                Log.d("MSFRAG", e.toString());
-                e.getStartTime();
-            }
-        }
         mSelectedEvents = new ArrayList<>();
     }
 
