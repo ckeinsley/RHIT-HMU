@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity implements MatchSchedulesFra
 
     //TODO: Fix backstack with the matching fragment
     //TODO: Fix bug with weekview
-    //TODO: Test matching algorithm
 
     private FirebaseAuth mFirebaseAuth;
     private OnCompleteListener mOnCompleteListener;
