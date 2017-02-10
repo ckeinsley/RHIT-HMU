@@ -5,6 +5,7 @@ import android.os.Parcelable;
 
 import com.alamkanak.weekview.WeekViewEvent;
 import com.google.firebase.database.Exclude;
+import com.google.gson.annotations.Expose;
 
 import java.util.Calendar;
 
@@ -17,9 +18,13 @@ import edu.rosehulman.keinslc.rhithmu.Utils.EventUtils;
 public class Event extends WeekViewEvent implements Parcelable {
 
     private String key;
+    @Expose
     private String description;
+    @Expose
     private String invitees;
+    @Expose
     private long mStartTimeInMilis;
+    @Expose
     private long mEndTimeInMilis;
 
 
@@ -100,12 +105,34 @@ public class Event extends WeekViewEvent implements Parcelable {
         setEndTime(cal);
     }
 
-
     public long getStartTimeInMilis() {
         return mStartTimeInMilis;
     }
 
     public void setStartTimeInMilis(long mStartTimeInMilis) {
+        this.mStartTimeInMilis = mStartTimeInMilis;
+        Calendar cal = getStartTime();
+        cal.setTimeInMillis(mStartTimeInMilis);
+        setStartTime(cal);
+    }
+    // Lol but what if this works
+    public long getmEndTimeInMilis() {
+        return mEndTimeInMilis;
+    }
+
+    public void setmEndTimeInMilis(long mEndTimeInMilis) {
+        this.mEndTimeInMilis = mEndTimeInMilis;
+        Calendar cal = getEndTime();
+        cal.setTimeInMillis(mEndTimeInMilis);
+        setEndTime(cal);
+    }
+
+
+    public long getmStartTimeInMilis() {
+        return mStartTimeInMilis;
+    }
+
+    public void setmStartTimeInMilis(long mStartTimeInMilis) {
         this.mStartTimeInMilis = mStartTimeInMilis;
         Calendar cal = getStartTime();
         cal.setTimeInMillis(mStartTimeInMilis);

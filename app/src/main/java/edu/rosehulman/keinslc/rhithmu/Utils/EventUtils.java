@@ -1,10 +1,9 @@
 package edu.rosehulman.keinslc.rhithmu.Utils;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import android.util.Log;
 
-import org.json.JSONArray;
-import org.json.JSONException;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -15,6 +14,8 @@ import java.util.List;
 import java.util.Scanner;
 
 import edu.rosehulman.keinslc.rhithmu.Event;
+
+import static com.google.android.gms.internal.zzs.TAG;
 
 /**
  * Created by keinslc on 1/16/2017.
@@ -36,28 +37,38 @@ public class EventUtils {
     }
 
     public static String getJSONifiedString(List<Event> events) {
-        String json = new Gson().toJson(events);
-        JSONArray jsonArray = new JSONArray();
-        try {
-            jsonArray = new JSONArray(json);
-        } catch (JSONException e) {
-            // Eat it
-        }
-        return jsonArray.toString();
+        GsonBuilder builder = new GsonBuilder().excludeFieldsWithoutExposeAnnotation();
+        String json = builder.create().toJson(events);
+        return json;
     }
 
     public static List<Event> getEventListfromJSON(String jsonString) {
-        // Lol why are there nulls, IDK
-        jsonString = jsonString.replace("null", "");
         // Some GSON Magic
         Type type = new TypeToken<List<Event>>() {
         }.getType();
-        List<Event> inpList = new Gson().fromJson(jsonString, type);
+        String output = jsonString.replace("null", "").trim();
+        StringBuilder sb = new StringBuilder(output);
+        if (sb.length() > 4000) {
+            int chunkCount = sb.length() / 4000;     // integer division
+            for (int i = 0; i <= chunkCount; i++) {
+                int max = 4000 * (i + 1);
+                if (max >= sb.length()) {
+                    Log.v(TAG, "chunk " + i + " of " + chunkCount + ":" + sb.substring(4000 * i));
+                } else {
+                    Log.v(TAG, "chunk " + i + " of " + chunkCount + ":" + sb.substring(4000 * i, max));
+                }
+            }
+        } else {
+            Log.v(TAG, sb.toString());
+        }
+
+        GsonBuilder builder = new GsonBuilder().excludeFieldsWithoutExposeAnnotation();
+        List<Event> inpList = builder.create().fromJson(output, type);
         //Magical Debugging Junk
-//        for (int i = 0; i < inpList.size(); i++) {
-//            Event x = inpList.get(i);
-//            Log.d("EVENT : ", x.toString());
-//        }
+        for (int i = 0; i < inpList.size(); i++) {
+            Event x = inpList.get(i);
+            Log.d("EVENT : ", x.toString());
+        }
         return inpList;
     }
 
@@ -95,7 +106,6 @@ public class EventUtils {
     }
 
     public static Long getNewId() {
-        //TODO: Guarantee that no two IDs are the same
         return 17L;
     }
 
@@ -167,7 +177,7 @@ public class EventUtils {
         calendar.set(
                 Integer.parseInt(value.substring(0, 4)),
                 Integer.parseInt(value.substring(4, 6)) - 1, //I'll have you know I spent a long time debugging this
-                (value.charAt(7) == 'q') ? 1 :Integer.parseInt(value.substring(6, 8)),
+                (value.charAt(7) == 'q') ? 1 : Integer.parseInt(value.substring(6, 8)),
                 Integer.parseInt(value.substring(9, 11)),
                 Integer.parseInt(value.substring(11, 13)),
                 Integer.parseInt(value.substring(13, 15)));

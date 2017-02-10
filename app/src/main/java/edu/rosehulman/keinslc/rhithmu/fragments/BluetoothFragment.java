@@ -306,13 +306,21 @@ public class BluetoothFragment extends Fragment {
             public void onClick(View v) {
                 mChatService.stop();
                 // Get events recieved
-                List<List<Event>> eventListList = new ArrayList<List<Event>>();
-                eventListList.add(EventUtils.getEventListfromJSON(recievedEvents));
-                eventListList.add(mList);
-                List<Event> matched = EventUtils.match(eventListList);
+//                List<List<Event>> eventListList = new ArrayList<List<Event>>();
+                ArrayList<Event> eventListList = new ArrayList<Event>(mList);
+//                Log.d("BT TAG event String", recievedEvents);
+                List<Event> listylistylisty = EventUtils.getEventListfromJSON(recievedEvents);
+                for (Event event : listylistylisty) {
+                    eventListList.add(event);
+                    Log.d("BT TAG event in list:", event.toString());
+                }
+//                eventListList.add(EventUtils.getEventListfromJSON(recievedEvents));
+//                eventListList.add(mList);
+//                List<Event> matched = EventUtils.match(eventListList);
                 // Parcleable balks at the idea of a generic list
-                ArrayList<Event> output = new ArrayList<Event>(matched);
-                mCallbackListener.onSchedulesMatch(output);
+//                ArrayList<Event> output = new ArrayList<Event>(matched);
+                mCallbackListener.onSchedulesMatch(eventListList);
+//                mCallbackListener.onSchedulesMatch(output);
             }
         });
 

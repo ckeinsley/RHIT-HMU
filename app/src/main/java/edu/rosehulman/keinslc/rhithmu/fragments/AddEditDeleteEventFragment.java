@@ -182,7 +182,6 @@ public class AddEditDeleteEventFragment extends Fragment {
      * Assigns a listener to the date and time buttons to launch the fragments
      */
     private void setupButtonListeners() {
-        //TODO: FIX button appearance, chris thinks this should be in the XML but it makes me cringe
         mNeutralButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

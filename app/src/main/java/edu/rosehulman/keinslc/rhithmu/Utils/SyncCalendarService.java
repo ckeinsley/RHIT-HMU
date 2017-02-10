@@ -8,6 +8,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.Log;
 
 import java.io.IOException;
@@ -53,7 +54,7 @@ public class SyncCalendarService {
      * @param handler A Handler to send messages back to the UI Activity
      */
     public SyncCalendarService(Context context, Handler handler) {
-        Log.d(TAG,"++++++++++CREATED+++++++++");
+        Log.d(TAG, "++++++++++CREATED+++++++++");
         mAdapter = BluetoothAdapter.getDefaultAdapter();
         mState = STATE_NONE;
         mHandler = handler;
@@ -449,18 +450,22 @@ public class SyncCalendarService {
 
         public void run() {
             Log.i(TAG, "BEGIN mConnectedThread");
-            byte[] buffer = new byte[1024];
             int bytes;
-
             // Keep listening to the InputStream while connected
-            while (mState == STATE_CONNECTED) {
-                try {
-                    // Read from the InputStream
-                    bytes = mmInStream.read(buffer);
+            while (mState == STATE_CONNECTED) { // while(true)
 
-                    // Send the obtained bytes to the UI Activity
-                    mHandler.obtainMessage(Constants.MESSAGE_READ, bytes, -1, buffer)
-                            .sendToTarget();
+                try {
+                    if (mmInStream.available() > 0) {
+                        byte[] buffer = new byte[4096];
+                        // Read from the InputStream
+                        bytes = mmInStream.read(buffer);
+                        mHandler.obtainMessage(Constants.MESSAGE_READ, bytes, -1, buffer)
+                                .sendToTarget();
+                        // Send the obtained bytes to the UI Activity
+                    } else {
+                        SystemClock.sleep(100);
+                    }
+
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
                     connectionLost();
@@ -470,6 +475,7 @@ public class SyncCalendarService {
                 }
             }
         }
+
 
         /**
          * Write to the connected OutStream.

@@ -47,6 +47,10 @@ import static edu.rosehulman.keinslc.rhithmu.Utils.Constants.RC_ROSEFIRE_LOGIN;
 
 public class MainActivity extends AppCompatActivity implements MatchSchedulesFragment.MatchScheduleListener, WeekViewFragment.OnEventSelectedListener, AddEditDeleteEventFragment.OnEventEditedListener, LoginFragment.OnLoginListener, GoogleApiClient.OnConnectionFailedListener, BluetoothFragment.bluetoothCallbackListener {
 
+    //TODO: Fix backstack with the matching fragment
+    //TODO: Fix bug with weekview
+    //TODO: Test matching algorithm
+
     private FirebaseAuth mFirebaseAuth;
     private OnCompleteListener mOnCompleteListener;
     private GoogleApiClient mGoogleApiClient;
