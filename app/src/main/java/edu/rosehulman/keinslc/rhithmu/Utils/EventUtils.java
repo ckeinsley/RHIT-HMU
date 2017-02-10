@@ -1,7 +1,5 @@
 package edu.rosehulman.keinslc.rhithmu.Utils;
 
-import android.util.Log;
-
 import com.google.gson.GsonBuilder;
 import com.google.gson.LongSerializationPolicy;
 import com.google.gson.reflect.TypeToken;
@@ -15,8 +13,6 @@ import java.util.List;
 import java.util.Scanner;
 
 import edu.rosehulman.keinslc.rhithmu.Event;
-
-import static com.google.android.gms.internal.zzs.TAG;
 
 /**
  * Created by keinslc on 1/16/2017.
@@ -40,7 +36,6 @@ public class EventUtils {
     public static String getJSONifiedString(List<Event> events) {
         GsonBuilder builder = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setLongSerializationPolicy(LongSerializationPolicy.STRING);
         String json = builder.create().toJson(events);
-        Log.d("EVENT UNTILS", json);
         return json;
     }
 
@@ -49,28 +44,8 @@ public class EventUtils {
         Type type = new TypeToken<List<Event>>() {
         }.getType();
         String output = jsonString.replace("null", "").trim();
-        StringBuilder sb = new StringBuilder(output);
-        if (sb.length() > 4000) {
-            int chunkCount = sb.length() / 4000;     // integer division
-            for (int i = 0; i <= chunkCount; i++) {
-                int max = 4000 * (i + 1);
-                if (max >= sb.length()) {
-                    Log.v(TAG, "chunk " + i + " of " + chunkCount + ":" + sb.substring(4000 * i));
-                } else {
-                    Log.v(TAG, "chunk " + i + " of " + chunkCount + ":" + sb.substring(4000 * i, max));
-                }
-            }
-        } else {
-            Log.v(TAG, sb.toString());
-        }
-
         GsonBuilder builder = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setLongSerializationPolicy(LongSerializationPolicy.STRING);
         List<Event> inpList = builder.create().fromJson(output, type);
-        //Magical Debugging Junk
-        for (int i = 0; i < inpList.size(); i++) {
-            Event x = inpList.get(i);
-            Log.d("EVENT : ", x.toString());
-        }
         return inpList;
     }
 

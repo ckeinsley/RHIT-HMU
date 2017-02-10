@@ -179,6 +179,7 @@ public class BluetoothFragment extends Fragment {
         SharedPreferences prefs = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         String mPath = prefs.getString(PREF_MPATH, "NoUid");
         //Only Query Firebase for the next two weeks of stuff
+        // TODO: Fix this firebase Query (Probably need to fix the indexing since it seems to be broken)
         Calendar cal = Calendar.getInstance();
         long l = cal.getTimeInMillis();
         long TWO_WEEKS_IN_MILIS = 1209600000;

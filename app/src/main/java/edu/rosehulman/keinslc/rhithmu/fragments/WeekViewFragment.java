@@ -317,7 +317,7 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
                 Calendar nextMonth = Calendar.getInstance();
                 lastMonth.set(lastMonth.get(Calendar.YEAR), lastMonth.get(Calendar.MONTH), lastMonth.get(Calendar.DAY_OF_MONTH), 0, 0);
                 nextMonth.set(lastMonth.get(Calendar.YEAR), lastMonth.get(Calendar.MONTH), lastMonth.get(Calendar.DAY_OF_MONTH), 0, 0);
-                //TODO: will cause funny bugs, woo;
+                //TODO: will cause funny bugs, woo FIX ME
                 if (newMonth == 1) {
                     lastMonth.set(newYear - 1, 12, 31);
                     nextMonth.set(newYear, 2, 1);
