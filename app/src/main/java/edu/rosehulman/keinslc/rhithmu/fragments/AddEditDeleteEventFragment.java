@@ -199,12 +199,12 @@ public class AddEditDeleteEventFragment extends Fragment {
                 mEvent.setLocation(eventLocationEditText.getText().toString());
                 mEvent.setDescription(eventDescriptionEditText.getText().toString());
                 mEvent.setInvitees(eventInviteesEditText.getText().toString());
-                if (mEvent.getId() == -1) {
-                    mEvent.setId(EventUtils.getNewId());
-                    mEventRef.push().setValue(mEvent);
-                } else {
-                    mEventRef.child(mEvent.getKey()).setValue(mEvent);
-                }
+//                if (mEvent.getId() == -1) {
+//                    mEvent.setId(EventUtils.getNewId());
+//                    mEventRef.push().setValue(mEvent);
+//                } else {
+//                    mEventRef.child(mEvent.getKey()).setValue(mEvent);
+//                }
                 //so this might qualify as cheating the system but who cares
                 if (RecurringFrequencySpinner.getVisibility() == View.GONE) {
                     addEvent();
@@ -343,23 +343,19 @@ public class AddEditDeleteEventFragment extends Fragment {
             factor = EventUtils.ONE_WEEK_IN_MILLIS;
         } else {
             //guess we have to do this the hard way
-            Log.d("Monthly", "in monthly");
             while (recurStart.getTimeInMillis() < max) {
                 mEvent.setStartTime(recurStart);
                 mEvent.setEndTime(recurEnd);
                 addEvent();
-                //On the off chance that some madman split their event over two months, we're ready
                 //side note: if this causes an error tell IntelliJ to piss off because the code works
                 if (recurStart.get(Calendar.MONTH) == Calendar.DECEMBER) {
                     recurStart.set(Calendar.MONTH, Calendar.JANUARY);
-                } else {
-                    recurStart.set(Calendar.MONTH, recurStart.get(Calendar.MONTH) + 1);
-                }
-                if (recurEnd.get(Calendar.MONTH) == Calendar.DECEMBER) {
                     recurEnd.set(Calendar.MONTH, Calendar.JANUARY);
                 } else {
+                    recurStart.set(Calendar.MONTH, recurStart.get(Calendar.MONTH) + 1);
                     recurEnd.set(Calendar.MONTH, recurEnd.get(Calendar.MONTH) + 1);
                 }
+
             }
             return;
         }
@@ -367,22 +363,33 @@ public class AddEditDeleteEventFragment extends Fragment {
             mEvent.setStartTime(recurStart);
             mEvent.setEndTime(recurEnd);
             addEvent();
+            int hour = recurStart.get(Calendar.HOUR);
             recurStart.setTimeInMillis(recurStart.getTimeInMillis() + factor);
             recurEnd.setTimeInMillis(recurEnd.getTimeInMillis() + factor);
+            if(recurStart.get(Calendar.HOUR) != hour){
+                //daylight savings!
+                int falseHour = recurStart.get(Calendar.HOUR);
+                if(falseHour > hour){
+                    recurStart.setTimeInMillis(recurStart.getTimeInMillis() - EventUtils.ONE_HOUR_IN_MILLIS);
+                    recurEnd.setTimeInMillis(recurEnd.getTimeInMillis() - EventUtils.ONE_HOUR_IN_MILLIS);
+                } else {
+                    recurStart.setTimeInMillis(recurStart.getTimeInMillis() + EventUtils.ONE_HOUR_IN_MILLIS);
+                    recurEnd.setTimeInMillis(recurEnd.getTimeInMillis() + EventUtils.ONE_HOUR_IN_MILLIS);
+                }
+            }
+
         }
 
     }
 
     //export some work and isolate the firebase connecting
     private void addEvent() {
-//        mEvent.setStartTimeInMilis(startTime);
-//        mEvent.setEndTimeInMilis(endTime);
-//        if (mEvent.getId() == -1) {
-//            mEvent.setId(EventUtils.getNewId());
-//            mEventRef.push().setValue(mEvent);
-//        } else {
-//            mEventRef.child(mEvent.getKey()).setValue(mEvent);
-//        }
+        if (mEvent.getId() == -1) {
+            mEvent.setId(EventUtils.getNewId());
+            mEventRef.push().setValue(mEvent);
+        } else {
+            mEventRef.child(mEvent.getKey()).setValue(mEvent);
+        }
         //if we don't do this recurring will not work
         mEvent.setId(-1);
     }
