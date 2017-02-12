@@ -228,6 +228,10 @@ public class EventUtils {
         Event e;
         long id = 10;
         for (int i = 0; i < 336; i++) {
+            int hour = i % 24;
+            if(hour < 7 || hour == 23){
+                continue;
+            }
             e = new Event();
             e.setName("Possible Meeting Time");
             e.setStartTimeInMilis(onTheHour.getTimeInMillis() + i * ONE_HOUR_IN_MILLIS);

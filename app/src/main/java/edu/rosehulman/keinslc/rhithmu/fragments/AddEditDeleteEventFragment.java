@@ -330,7 +330,6 @@ public class AddEditDeleteEventFragment extends Fragment {
 
     //If recurring is true call this and let the madness begin
     private void addRecurringEvents() {
-        //TODO: deal with daylights savings
         long factor = 0;
         Calendar recurStart = (Calendar) mStartTime.clone();
         Calendar recurEnd = (Calendar) mEndTime.clone();
