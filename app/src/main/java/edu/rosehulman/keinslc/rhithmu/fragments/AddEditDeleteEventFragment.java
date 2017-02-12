@@ -49,9 +49,7 @@ public class AddEditDeleteEventFragment extends Fragment {
     private DatePicker startDatePicker;
     private TimePicker startTimePicker;
 
-    private TextView endDateTextView;
     private TextView endTimeTextView;
-    private DatePicker endDatePicker;
     private TimePicker endTimePicker;
 
     private EditText eventNameEditText;
@@ -118,10 +116,8 @@ public class AddEditDeleteEventFragment extends Fragment {
         mNegativeButton = (Button) view.findViewById(R.id.negativeButton);
         mPositiveButton = (Button) view.findViewById(R.id.positiveButton);
 
-        endDateTextView = (TextView) view.findViewById(R.id.endDateTextView);
         endTimeTextView = (TextView) view.findViewById(R.id.endTimeTextView);
         endTimePicker = (TimePicker) view.findViewById(R.id.endTimePicker);
-        endDatePicker = (DatePicker) view.findViewById(R.id.endDatePicker);
 
         // EditTexts
         eventNameEditText = (EditText) view.findViewById(R.id.event_name_editText);
@@ -155,7 +151,7 @@ public class AddEditDeleteEventFragment extends Fragment {
         mRecurringTime = Calendar.getInstance();
         updateView();
         setupButtonListeners();
-        
+
         return view;
     }
 
@@ -173,7 +169,6 @@ public class AddEditDeleteEventFragment extends Fragment {
     private void updateDateTimeView() {
         startDateTextView.setText(getString(R.string.startDateButtonFirstHalf) + EventUtils.getDateStringFromCalendar(mStartTime));
         startTimeTextView.setText(getString(R.string.startTimeFirstHalf) + EventUtils.getTimeStringFromCalendar(mStartTime));
-        endDateTextView.setText(getString(R.string.endDateButtonFirstHalf) + EventUtils.getDateStringFromCalendar(mEndTime));
         endTimeTextView.setText(getString(R.string.endTimeFirstHalf) + EventUtils.getTimeStringFromCalendar(mEndTime));
         RecurringEndDateTextView.setText(getString(R.string.until) + EventUtils.getDateStringFromCalendar(mRecurringTime));
     }
@@ -226,6 +221,7 @@ public class AddEditDeleteEventFragment extends Fragment {
                 if (startDatePicker.getVisibility() == View.VISIBLE) {
                     startDatePicker.setVisibility(View.GONE);
                     mStartTime.set(startDatePicker.getYear(), startDatePicker.getMonth(), startDatePicker.getDayOfMonth());
+                    mEndTime.set(startDatePicker.getYear(), startDatePicker.getMonth(), startDatePicker.getDayOfMonth());
                 } else {
                     startDatePicker.updateDate(mStartTime.get(Calendar.YEAR), mStartTime.get(Calendar.MONTH), mStartTime.get(Calendar.DAY_OF_MONTH));
                     startDatePicker.setVisibility(View.VISIBLE);
@@ -264,19 +260,7 @@ public class AddEditDeleteEventFragment extends Fragment {
                 updateDateTimeView();
             }
         });
-        endDateTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (endDatePicker.getVisibility() == View.VISIBLE) {
-                    endDatePicker.setVisibility(View.GONE);
-                    mEndTime.set(endDatePicker.getYear(), endDatePicker.getMonth(), endDatePicker.getDayOfMonth());
-                } else {
-                    endDatePicker.updateDate(mEndTime.get(Calendar.YEAR), mEndTime.get(Calendar.MONTH), mEndTime.get(Calendar.DAY_OF_MONTH));
-                    endDatePicker.setVisibility(View.VISIBLE);
-                }
-                updateDateTimeView();
-            }
-        });
+
         endTimeTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

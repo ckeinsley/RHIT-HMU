@@ -2,7 +2,7 @@
     <string name="app_name">RHIT HMU</string>
     <string name="action_settings">Settings</string>
     <string name="action_import_classes">Import Classes</string>
-    <string name="startDateButtonFirstHalf">"Start Day: \n"</string>
+    <string name="startDateButtonFirstHalf">"Day: \n"</string>
     <string name="startTimeFirstHalf">"Start Time: \n"</string>
     <string name="endTimeFirstHalf">"End Time: \n"</string>
     <string name="nameTextViewLabel">Name</string>

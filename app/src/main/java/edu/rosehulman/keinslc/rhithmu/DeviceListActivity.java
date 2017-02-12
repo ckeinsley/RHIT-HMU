@@ -172,6 +172,12 @@ public class DeviceListActivity extends Activity {
         this.unregisterReceiver(mReceiver);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        finish();
+    }
+
     /**
      * Start device discover with the BluetoothAdapter
      */

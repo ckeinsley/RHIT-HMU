@@ -313,29 +313,11 @@ public class WeekViewFragment extends Fragment implements ChildEventListener {
         mWeekView.setMonthChangeListener(new MonthLoader.MonthChangeListener() {
             @Override
             public List<? extends WeekViewEvent> onMonthChange(int newYear, int newMonth) {
-                Calendar lastMonth = Calendar.getInstance();
-                Calendar nextMonth = Calendar.getInstance();
-                lastMonth.set(lastMonth.get(Calendar.YEAR), lastMonth.get(Calendar.MONTH), lastMonth.get(Calendar.DAY_OF_MONTH), 0, 0);
-                nextMonth.set(lastMonth.get(Calendar.YEAR), lastMonth.get(Calendar.MONTH), lastMonth.get(Calendar.DAY_OF_MONTH), 0, 0);
-                //TODO: will cause funny bugs, woo FIX ME
-                if (newMonth == 1) {
-                    lastMonth.set(newYear - 1, 12, 31);
-                    nextMonth.set(newYear, 2, 1);
-                } else if (newMonth == 12) {
-                    lastMonth.set(newYear, 11, 30);
-                    nextMonth.set(newYear + 1, 1, 1);
-                } else {
-                    lastMonth.set(newYear, newMonth - 1, 30);
-                    nextMonth.set(newYear, newMonth + 1, 1);
-                }
-
-                long lowEnd = lastMonth.getTimeInMillis();
-                long highEnd = nextMonth.getTimeInMillis();
-
                 List<Event> list = new ArrayList<>();
                 for (int i = 0; i < mEvents.size(); i++) {
-                    if (lowEnd <= mEvents.get(i).getStartTimeInMilis() && mEvents.get(i).getEndTimeInMilis() <= highEnd) {
-                        list.add(mEvents.get(i));
+                    Event event = mEvents.get(i);
+                    if (event.getStartTime().get(Calendar.YEAR) == newYear && (event.getStartTime().get(Calendar.MONTH) + 1) == newMonth) {
+                        list.add(event);
                     }
                 }
                 return list;
